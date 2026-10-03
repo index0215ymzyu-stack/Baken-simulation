@@ -18,8 +18,8 @@
     }
 
     /* ==========================================
-        共通のサイト共通ヘッダー（全ページ共通バナー）
-        ========================================== */
+       共通のサイト共通ヘッダー（全ページ共通バナー）
+       ========================================== */
     .site-header-banner {
       background-color: #1b5e20;
       color: white;
@@ -61,8 +61,8 @@
     }
 
     /* ==========================================
-        各ビューのラッパー
-        ========================================== */
+       各ビューのラッパー
+       ========================================== */
     .landing-wrapper, .app-wrapper, .sub-page-wrapper {
       padding: 12px;
       padding-top: 20px;
@@ -79,8 +79,8 @@
     }
 
     /* ==========================================
-        トップページ（ランディングページ）用のスタイル
-        ========================================== */
+       トップページ（ランディングページ）用のスタイル
+       ========================================== */
     .hero-section {
       background-color: #fff;
       padding: 40px 20px;
@@ -183,8 +183,8 @@
     }
 
     /* ==========================================
-        サブページ用のスタイル
-        ========================================== */
+       サブページ用のスタイル
+       ========================================== */
     .sub-page-card {
       background-color: #fff;
       border-radius: 8px;
@@ -215,8 +215,8 @@
     }
 
     /* ==========================================
-        黒い縁取りのフッター
-        ========================================== */
+       黒い縁取りのフッター
+       ========================================== */
     .site-footer {
       background-color: #111;
       color: #ccc;
@@ -260,8 +260,8 @@
     }
 
     /* ==========================================
-        メインアプリ用のスタイル
-        ========================================== */
+       メインアプリ用のスタイル
+       ========================================== */
     .container {
       max-width: 480px;
       margin: 0 auto;
@@ -328,8 +328,6 @@
     .action-btn { width: 100%; padding: 12px; background-color: #2e7d32; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     .action-btn.secondary { background-color: #757575; }
     .action-btn.primary-blue { background-color: #0288d1; }
-    .action-btn.download-btn { background-color: #e65100; margin-top: 8px; }
-    .action-btn.download-btn:hover { background-color: #d84315; }
     .cart-item { background-color: #f9f9f9; border-left: 4px solid #2e7d32; padding: 10px; margin-bottom: 10px; border-radius: 4px; position: relative; }
     .cart-item-title { font-weight: bold; font-size: 14px; color: #1b5e20; }
     .cart-item-detail { font-size: 12px; color: #666; margin-top: 4px; }
@@ -339,18 +337,18 @@
     .badge-green { background-color: #2e7d32; }
     .badge-blue { background-color: #1565c0; }
     .badge-red { background-color: #c62828; }
-    .sheet-canvas-wrap { border: 1px solid #ccc; border-radius: 4px; overflow: hidden; background: #fafafa; text-align: center; padding: 4px; }
-    .sheet-canvas { width: 100%; height: auto; display: block; }
+    .sheet-img-wrap { border: 1px solid #ccc; border-radius: 4px; overflow: hidden; background: #fafafa; text-align: center; }
+    .sheet-img { width: 100%; height: auto; display: block; cursor: pointer; }
     .manual-section { margin-top: 25px; padding-top: 15px; }
-    .bottom-bar { fixed; bottom: 0; left: 0; right: 0; background-color: #111; color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.3); z-index: 100; }
+    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background-color: #111; color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.3); z-index: 100; }
     .bottom-total { font-size: 18px; font-weight: bold; color: #ffcc00; }
   </style>
 </head>
 <body>
 
   <!-- ==============================================
-        共通サイトヘッダーバナー（全ページ共通）
-        ============================================== -->
+       共通サイトヘッダーバナー（全ページ共通）
+       ============================================== -->
   <header class="site-header-banner">
     <a class="site-logo" onclick="switchView('landing')">
       🏇 馬券シミュレーター
@@ -359,8 +357,8 @@
   </header>
 
   <!-- ==============================================
-        1. トップページ（ランディングページ）
-        ============================================== -->
+       1. トップページ（ランディングページ）
+       ============================================== -->
   <div class="landing-wrapper active" id="landingPage">
     <div class="landing-container">
       
@@ -377,7 +375,7 @@
           <span class="hero-badge">全券種対応</span>
         </div>
 
-        <button class="start-btn" onclick="switchView('app'); goToStep(1);">シミュレーションを始める</button>
+        <button class="start-btn" onclick="switchView('app')">シミュレーションを始める</button>
       </div>
 
       <h2 style="font-size: 16px; color: #333; margin-bottom: 20px;">💡 使い方は簡単 3ステップ</h2>
@@ -403,7 +401,7 @@
           <div class="feature-number">3</div>
           <div class="feature-text">
             <h3>マークシートの書き方をチェック</h3>
-            <p>カートに入れた馬券に合わせて、どの色のマークカードをどう塗りつぶすべきか視覚的にガイド。画像ダウンロードも可能！</p>
+            <p>カートに入れた馬券の内容に合わせて、どの色のマークカードにどうやって記入すればいいかをズバリ指示してくれます。</p>
           </div>
         </div>
       </div>
@@ -412,8 +410,8 @@
   </div>
 
   <!-- ==============================================
-        2. メインアプリ（シミュレーション画面）
-        ============================================== -->
+       2. メインアプリ（シミュレーション画面）
+       ============================================== -->
   <div class="app-wrapper" id="appContainer">
     <div class="container">
       <div class="header-bar" id="pageTitle">① 馬券の種類を選択</div>
@@ -537,13 +535,13 @@
           
           <div style="margin-top:20px; border-top:1px solid #ccc; padding-top:15px;">
             <button class="action-btn" onclick="goToStep(4)" id="btnGoStep4" style="margin-bottom:8px;">マークシートの書き方を見る &#10140;</button>
-            <button class="action-btn primary-blue" onclick="switchView('app'); goToStep(1);">＋ さらに別の馬券を追加する</button>
+            <button class="action-btn primary-blue" onclick="goToStep(1)">＋ さらに別の馬券を追加する</button>
           </div>
         </div>
 
         <!-- 画面④：マークシート記入ガイド -->
         <div id="view-4" class="view-page">
-          <p style="font-size:13px; color:#666; margin-top:0; margin-bottom: 15px;">競馬場の発券機で購入する際、以下のマークシートを参照してください。ダウンロードしてスマホに保存できます！</p>
+          <p style="font-size:13px; color:#666; margin-top:0; margin-bottom: 15px;">競馬場の発券機で購入する際、以下のマークシートを参照してください：</p>
           
           <div id="sheetGuideList"></div>
           <div class="manual-section" id="manualSection"></div>
@@ -562,8 +560,8 @@
   </div>
 
   <!-- ==============================================
-        3. 各種サブページ（プライバシーポリシー等）
-        ============================================== -->
+       3. 各種サブページ（プライバシーポリシー等）
+       ============================================== -->
   <div class="sub-page-wrapper" id="subPageContainer">
     <div class="sub-page-container">
       <div class="sub-page-card">
@@ -576,8 +574,8 @@
   </div>
 
   <!-- ==============================================
-        4. 黒い縁取りのフッター（広告枠 ＆ 必須ページリンク）
-        ============================================== -->
+       4. 黒い縁取りのフッター（広告枠 ＆ 必須ページリンク）
+       ============================================== -->
   <footer class="site-footer">
     <div class="footer-content">
       <div class="ad-banner-box">
@@ -599,8 +597,8 @@
   </footer>
 
   <!-- ==============================================
-        5. JavaScript (機能ロジック)
-        ============================================== -->
+       5. JavaScript (機能ロジック)
+       ============================================== -->
   <script>
     var pendingTicketName = '';
     var pendingTicketCode = '';
@@ -635,7 +633,7 @@
         window.scrollTo(0, 0);
       } else if (viewName === 'app') {
         app.classList.add('active');
-        // ※ ここにあった強制 goToStep(1) を削除しました
+        goToStep(1);
       } else if (viewName === 'privacy' || viewName === 'terms' || viewName === 'faq' || viewName === 'contact') {
         subPage.classList.add('active');
         renderSubPage(viewName);
@@ -1108,7 +1106,6 @@
         amountNum: calc.amountNum, amountUnitText: calc.amountUnitText, totalAmount: calc.totalAmount,
         combos: generateCombosStrings(), rawSelections: getRawSelections()
       });
-      // 修正: アプリ画面に切り替えたうえで、ステップ3（カート画面）へ確実に移動する
       switchView('app');
       goToStep(3);
     }
@@ -1155,80 +1152,42 @@
       renderCart();
     }
 
-    // --- マークシート画像生成（Canvas処理） & ダウンロード機能 ---
-    function generateMarkSheetCanvas(item, callback) {
-      var imgUrl = sheetImages.green;
-      if (item.methodCode === 'formation') imgUrl = sheetImages.redForm;
-      else if (item.methodCode === 'nagashi') {
-        imgUrl = (item.ticketCode === 'sanrenfuku') ? sheetImages.blueFuku : sheetImages.blueTan;
-      } else if (item.methodCode === 'box') imgUrl = sheetImages.redBox;
-
-      var img = new Image();
-      img.crossOrigin = "anonymous";
-      img.onload = function() {
-        var canvas = document.createElement('canvas');
-        canvas.width = img.naturalWidth || 600;
-        canvas.height = img.naturalHeight || 800;
-        var ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        callback(canvas);
-      };
-      img.onerror = function() {
-        var canvas = document.createElement('canvas');
-        canvas.width = 600;
-        canvas.height = 400;
-        var ctx = canvas.getContext('2d');
-        ctx.fillStyle = "#e8f5e9";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#1b5e20";
-        ctx.font = "bold 20px sans-serif";
-        ctx.fillText("馬券マークシート指示書: " + item.ticketName + " (" + item.methodName + ")", 30, 50);
-        ctx.fillStyle = "#333";
-        ctx.font = "14px sans-serif";
-        ctx.fillText("【買い目】 " + item.combos.slice(0, 5).join(', '), 30, 90);
-        ctx.fillText("【金額】 " + item.amountNum + item.amountUnitText, 30, 120);
-        callback(canvas);
-      };
-      img.src = imgUrl;
-    }
-
     function renderSheetGuide() {
       var list = document.getElementById("sheetGuideList"); list.innerHTML = '';
       if (cart.length > 0) {
         var cartHeading = document.createElement('div');
-        cartHeading.innerHTML = '<div style="font-weight:bold; font-size:14px; color:#1b5e20; margin-bottom:8px;">🛒 カート内馬券のマークシート指定（そのまま使えるガイド）</div>';
+        cartHeading.innerHTML = '<div style="font-weight:bold; font-size:14px; color:#1b5e20; margin-bottom:8px;">🛒 カート内馬券のマークシート指定</div>';
         list.appendChild(cartHeading);
-
         cart.forEach(function(item, idx) {
-          var cardType = '基本用（緑）', badgeClass = 'badge-green';
-          if (item.methodCode === 'formation') { cardType = 'フォーメーション（赤）'; badgeClass = 'badge-red'; }
+          var cardType = '基本用（緑）', badgeClass = 'badge-green', imgUrl = sheetImages.green;
+          if (item.methodCode === 'formation') { cardType = 'フォーメーション（赤）'; badgeClass = 'badge-red'; imgUrl = sheetImages.redForm; }
           else if (item.methodCode === 'nagashi') {
-            if (item.ticketCode === 'sanrenfuku') { cardType = '連複流し（青）'; badgeClass = 'badge-blue'; }
-            else { cardType = '連単流し（青）'; badgeClass = 'badge-blue'; }
-          } else if (item.methodCode === 'box') { cardType = 'ボックス（赤）'; badgeClass = 'badge-red'; }
+            if (item.ticketCode === 'sanrenfuku') { cardType = '連複流し（青）'; badgeClass = 'badge-blue'; imgUrl = sheetImages.blueFuku; }
+            else { cardType = '連単流し（青）'; badgeClass = 'badge-blue'; imgUrl = sheetImages.blueTan; }
+          } else if (item.methodCode === 'box') { cardType = 'ボックス（赤）'; badgeClass = 'badge-red'; imgUrl = sheetImages.redBox; }
 
           var markDetailsHtml = '<li style="margin-bottom:6px;"><b>式別:</b> 「' + item.ticketName + '」を塗りつぶす</li>';
           if (item.methodCode === 'normal') {
             markDetailsHtml += '<li style="margin-bottom:6px;"><b>馬番/枠番:</b> 各行ごとに以下を塗りつぶす<br>';
-            item.rawSelections.forEach(function(sel) {
+            item.rawSelections.forEach(function(sel, i) {
               if (item.ticketCode === 'tansho' || item.ticketCode === 'fukusho' || item.ticketCode === 'ouen') {
-                sel.forEach(function(num) { markDetailsHtml += ' 🔴 「' + num + '」番<br>'; });
-              } else { markDetailsHtml += ' 🔴 「' + sel.join((item.ticketCode === 'umatan' || item.ticketCode === 'sanrentan') ? '」→「' : '」-「') + '」<br>'; }
+                sel.forEach(function(num) { markDetailsHtml += ' ・「' + num + '」<br>'; });
+              } else { markDetailsHtml += ' ・「' + sel.join((item.ticketCode === 'umatan' || item.ticketCode === 'sanrentan') ? '」→「' : '」-「') + '」<br>'; }
             });
             markDetailsHtml += '</li>';
           } else if (item.methodCode === 'box') {
-            markDetailsHtml += '<li style="margin-bottom:6px;"><b>馬番/枠番:</b><br> 🔴 「' + item.rawSelections.join('」「') + '」を全て塗りつぶす</li>';
+            markDetailsHtml += '<li style="margin-bottom:6px;"><b>馬番/枠番:</b><br> ・「' + item.rawSelections.join('」「') + '」を全て塗りつぶす</li>';
           } else if (item.methodCode === 'formation') {
             markDetailsHtml += '<li style="margin-bottom:6px;"><b>馬番/枠番:</b><br>';
-            if (item.rawSelections[0] && item.rawSelections[0].length > 0) markDetailsHtml += ' 🔴 1着/1頭目: 「' + item.rawSelections[0].join('」「') + '」<br>';
-            if (item.rawSelections[1] && item.rawSelections[1].length > 0) markDetailsHtml += ' 🔴 2着/2頭目: 「' + item.rawSelections[1].join('」「') + '」<br>';
-            if (item.rawSelections[2] && item.rawSelections[2].length > 0) markDetailsHtml += ' 🔴 3着/3頭目: 「' + item.rawSelections[2].join('」「') + '」<br>';
+            if (item.rawSelections[0] && item.rawSelections[0].length > 0) markDetailsHtml += ' ・1着/1頭目: 「' + item.rawSelections[0].join('」「') + '」<br>';
+            if (item.rawSelections[1] && item.rawSelections[1].length > 0) markDetailsHtml += ' ・2着/2頭目: 「' + item.rawSelections[1].join('」「') + '」<br>';
+            if (item.rawSelections[2] && item.rawSelections[2].length > 0) markDetailsHtml += ' ・3着/3頭目: 「' + item.rawSelections[2].join('」「') + '」<br>';
             markDetailsHtml += '</li>';
           } else if (item.methodCode === 'nagashi') {
             markDetailsHtml += '<li style="margin-bottom:6px;"><b>馬番/枠番:</b><br>';
-            if (item.rawSelections[0] && item.rawSelections[0].length > 0) markDetailsHtml += ' 🔴 軸/1頭目: 「' + item.rawSelections[0].join('」「') + '」<br>';
-            if (item.rawSelections[1] && item.rawSelections[1].length > 0) markDetailsHtml += ' 🔴 相手/2頭目: 「' + item.rawSelections[1].join('」「') + '」<br>';
-            if (item.rawSelections[2] && item.rawSelections[2].length > 0) markDetailsHtml += ' 🔴 相手/3頭目: 「' + item.rawSelections[2].join('」「') + '」<br>';
+            if (item.rawSelections[0] && item.rawSelections[0].length > 0) markDetailsHtml += ' ・軸/1頭目: 「' + item.rawSelections[0].join('」「') + '」<br>';
+            if (item.rawSelections[1] && item.rawSelections[1].length > 0) markDetailsHtml += ' ・相手/2頭目: 「' + item.rawSelections[1].join('」「') + '」<br>';
+            if (item.rawSelections[2] && item.rawSelections[2].length > 0) markDetailsHtml += ' ・相手/3頭目: 「' + item.rawSelections[2].join('」「') + '」<br>';
             markDetailsHtml += '</li>';
           }
           markDetailsHtml += '<li style="margin-bottom:6px;"><b>金額:</b> 「' + item.amountNum + '」と「' + item.amountUnitText + '」を塗りつぶす</li>';
@@ -1236,24 +1195,12 @@
           var cardDiv = document.createElement('div'); cardDiv.className = 'sheet-guide-card';
           cardDiv.innerHTML = 
             '<span class="sheet-type-badge ' + badgeClass + '">' + (idx + 1) + '. ' + item.ticketName + ' (' + item.methodName + ') ➔ ' + cardType + '</span>' +
-            '<div style="background-color: #fffde7; border: 1px solid #ffe082; padding: 12px; border-radius: 6px; font-size: 13px; color: #333; margin-bottom: 12px; margin-top: 8px;">' +
-              '<div style="font-weight:bold; color:#f57f17; margin-bottom:8px; border-bottom:1px dashed #ffd54f; padding-bottom:4px;">✍️ 日本語が読めなくても安心！ここを塗りつぶします</div>' +
+            '<div style="background-color: #f1f8e9; border: 1px solid #c5e1a5; padding: 12px; border-radius: 6px; font-size: 13px; color: #333; margin-bottom: 12px; margin-top: 8px;">' +
+              '<div style="font-weight:bold; color:#2e7d32; margin-bottom:8px; border-bottom:1px dashed #a5d6a7; padding-bottom:4px;">✏️ このマークシートの塗り方</div>' +
               '<ul style="margin:0; padding-left:24px;">' + markDetailsHtml + '</ul>' +
             '</div>' +
-            '<div class="sheet-canvas-wrap" id="canvas-wrap-' + item.id + '"></div>' +
-            '<button class="action-btn download-btn" onclick="downloadMarkSheet(' + item.id + ', \'' + item.ticketName + '_' + item.methodName + '\')">📥 このマークシート画像をダウンロード</button>';
-          
+            '<div class="sheet-img-wrap"><img src="' + imgUrl + '" class="sheet-img" alt="マークシート画像"></div>';
           list.appendChild(cardDiv);
-
-          generateMarkSheetCanvas(item, function(canvas) {
-            canvas.className = 'sheet-canvas';
-            canvas.id = 'canvas-elem-' + item.id;
-            var wrap = document.getElementById('canvas-wrap-' + item.id);
-            if (wrap) {
-              wrap.innerHTML = '';
-              wrap.appendChild(canvas);
-            }
-          });
         });
       }
 
@@ -1270,7 +1217,7 @@
           '<div class="sheet-guide-card">' +
             '<span class="sheet-type-badge ' + m.badge + '">' + m.title + '</span>' +
             '<div style="font-size:12px; color:#444; margin-bottom:6px;">' + m.desc + '</div>' +
-            '<div class="sheet-canvas-wrap"><img src="' + m.url + '" class="sheet-canvas" alt="' + m.title + '"></div>' +
+            '<div class="sheet-img-wrap"><img src="' + m.url + '" class="sheet-img" alt="' + m.title + '"></div>' +
           '</div>';
       });
 
@@ -1286,18 +1233,6 @@
           '<p style="font-size:12px; color:#555; margin-bottom:12px;">購入方法や目的に応じて使い分ける5種類のマークカード一覧です。</p>' +
           '<div>' + manualHtml + '</div>';
       }
-    }
-
-    function downloadMarkSheet(itemId, fileNamePrefix) {
-      var canvas = document.getElementById('canvas-elem-' + itemId);
-      if (!canvas) {
-        alert("ダウンロード可能な画像が見つかりません。");
-        return;
-      }
-      var link = document.createElement('a');
-      link.download = 'baken_marksheet_' + fileNamePrefix + '_' + new Date().getTime() + '.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
     }
 
     function updateGrandTotal(currPts, currAmt) {
