@@ -324,7 +324,6 @@
     .badge-red { background-color: #c62828; }
 
     .sheet-img-wrap {
-      margin-top: 8px;
       border: 1px solid #ccc;
       border-radius: 4px;
       overflow: hidden;
@@ -339,10 +338,9 @@
       cursor: pointer;
     }
 
-    /* マニュアルセクション用タブ */
+    /* マニュアルセクション用 */
     .manual-section {
       margin-top: 25px;
-      border-top: 2px solid #e0e0e0;
       padding-top: 15px;
     }
 
@@ -377,7 +375,7 @@
       <div class="step-item active" id="step-1">1.券種選択</div>
       <div class="step-item" id="step-2">2.買い目選択</div>
       <div class="step-item" id="step-3">3.購入確認</div>
-      <div class="step-item" id="step-4">4.マークシート例</div>
+      <div class="step-item" id="step-4">4.マークシート</div>
     </div>
 
     <div class="main-card">
@@ -491,22 +489,20 @@
         
         <div style="margin-top:20px; border-top:1px solid #ccc; padding-top:15px;">
           <button class="action-btn primary-blue" onclick="goToStep(1)">＋ さらに別の馬券を追加する</button>
-          <button class="action-btn secondary" onclick="goToStep(4)" id="btnGoStep4" style="margin-top:8px;">マークシートの記入例を見る &#10140;</button>
+          <button class="action-btn secondary" onclick="goToStep(4)" id="btnGoStep4" style="margin-top:8px;">マークシートの書き方を見る &#10140;</button>
         </div>
       </div>
 
       <!-- 画面④：マークシート記入ガイド（実践ガイド ＆ 初心者向けマニュアル） -->
       <div id="view-4" class="view-page">
-        <p style="font-size:13px; color:#666; margin-top:0;">競馬場の発券機で購入する際、以下のマークシートを参照してください：</p>
+        <p style="font-size:13px; color:#666; margin-top:0; margin-bottom: 15px;">競馬場の発券機で購入する際、以下のマークシートを参照してください：</p>
         
         <!-- カート連動の実践ガイドエリア -->
         <div id="sheetGuideList"></div>
 
         <!-- 初心者向けマークシート全種類マニュアル -->
-        <div class="manual-section">
-          <div style="font-weight:bold; font-size:14px; color:#1b5e20; margin-bottom:8px;">📖 マークシート種類別完全マニュアル</div>
-          <p style="font-size:12px; color:#555; margin-bottom:12px;">購入方法や目的に応じて使い分ける5種類のマークカード一覧です。</p>
-          <div id="manualList"></div>
+        <div class="manual-section" id="manualSection">
+          <!-- JSで中身を生成します -->
         </div>
 
         <button class="action-btn secondary" onclick="goToStep(3)" style="margin-top:15px;">カート確認に戻る</button>
@@ -656,9 +652,8 @@
 
     // --- グレーアウト（選択不可）状態を更新する関数 ---
     function updateDisabledState(blockNum, labelsLength) {
-      if (selectedTicketCode === 'wakuren') return; // 枠連はゾロ目(同じ番号)が買えるので除外
+      if (selectedTicketCode === 'wakuren') return; 
 
-      // 各行で選ばれている番号を取得
       var selectedPerRow = [];
       for (var idx = 1; idx <= labelsLength; idx++) {
         var grid = document.getElementById('norm-' + blockNum + '-' + idx);
@@ -670,7 +665,6 @@
         }
       }
 
-      // 各マスのグレーアウト状態を判定・適用
       for (var idx = 1; idx <= labelsLength; idx++) {
         var grid = document.getElementById('norm-' + blockNum + '-' + idx);
         if (!grid) continue;
@@ -680,7 +674,6 @@
           var num = parseInt(boxes[i].dataset.num);
           var isDisabled = false;
           
-          // 他の行ですでに同じ番号が選ばれていたらグレーアウト
           for (var otherIdx = 1; otherIdx <= labelsLength; otherIdx++) {
             if (otherIdx !== idx && selectedPerRow[otherIdx] === num) {
               isDisabled = true;
@@ -742,24 +735,18 @@
                 box.innerText = i;
                 box.dataset.num = i;
                 box.onclick = function() {
-                  if (this.classList.contains('disabled')) return; // グレーアウト時はクリック無効
+                  if (this.classList.contains('disabled')) return;
                   
-                  // 単勝・複勝・応援馬券は複数選択可能にする
                   if (selectedTicketCode === 'tansho' || selectedTicketCode === 'fukusho' || selectedTicketCode === 'ouen') {
                     this.classList.toggle('selected');
                   } else {
-                    // それ以外は1行につき1つだけ選択
                     var isSelected = this.classList.contains('selected');
                     var boxes = grid.querySelectorAll('.mark-box');
                     for (var j = 0; j < boxes.length; j++) boxes[j].classList.remove('selected');
                     if (!isSelected) this.classList.add('selected');
                   }
                   
-                  // グレーアウト状態の更新
-                  if (currentMethod === 'normal') {
-                    updateDisabledState(blockNum, labels.length);
-                  }
-                  
+                  if (currentMethod === 'normal') updateDisabledState(blockNum, labels.length);
                   calculateCurrentSelection();
                 };
                 grid.appendChild(box);
@@ -837,7 +824,6 @@
 
       if (currentMethod === 'normal') {
         for (var b = 1; b <= normalBuyCount; b++) {
-          // 単勝・複勝・応援の場合は選んだ数がそのまま点数になる
           if (selectedTicketCode === 'tansho' || selectedTicketCode === 'fukusho' || selectedTicketCode === 'ouen') {
             var grid = document.getElementById('norm-' + b + '-1');
             if (grid) {
@@ -930,6 +916,49 @@
       return nums;
     }
 
+    // --- 【新規追加】生データの抽出関数（マークシート指定用） ---
+    function getRawSelections() {
+      var method = currentMethod;
+      var code = selectedTicketCode;
+      var labels = getLabelsForTicket(code, method);
+
+      if (method === 'normal') {
+        var selections = [];
+        for (var b = 1; b <= normalBuyCount; b++) {
+          if (code === 'tansho' || code === 'fukusho' || code === 'ouen') {
+            var grid = document.getElementById('norm-' + b + '-1');
+            if (grid) {
+              var sel = grid.querySelectorAll('.mark-box.selected');
+              var arr = [];
+              for(var i=0; i<sel.length; i++) arr.push(parseInt(sel[i].dataset.num));
+              if(arr.length > 0) selections.push(arr);
+            }
+          } else {
+            var arr = [];
+            var isValid = true;
+            for (var idx = 1; idx <= labels.length; idx++) {
+              var grid = document.getElementById('norm-' + b + '-' + idx);
+              if (!grid) { isValid = false; break; }
+              var sel = grid.querySelectorAll('.mark-box.selected');
+              if (sel.length !== 1) { isValid = false; break; }
+              arr.push(parseInt(sel[0].dataset.num));
+            }
+            if (isValid) selections.push(arr);
+          }
+        }
+        return selections;
+      } else if (method === 'box') {
+        return getSelectedNums('grid-box');
+      } else if (method === 'formation' || method === 'nagashi') {
+        return [
+          getSelectedNums('grid-form-1'),
+          getSelectedNums('grid-form-2'),
+          getSelectedNums('grid-form-3')
+        ];
+      }
+      return [];
+    }
+
     // 文字列の組み合わせ生成
     function generateCombosStrings() {
       var res = [];
@@ -941,14 +970,11 @@
 
       if (method === 'normal') {
         for (var b = 1; b <= normalBuyCount; b++) {
-          // 単勝・複勝・応援の場合は、選んだ番号を個別の馬券として追加する
           if (code === 'tansho' || code === 'fukusho' || code === 'ouen') {
             var grid = document.getElementById('norm-' + b + '-1');
             if (grid) {
               var sel = grid.querySelectorAll('.mark-box.selected');
-              for(var i = 0; i < sel.length; i++) {
-                add(sel[i].dataset.num);
-              }
+              for(var i = 0; i < sel.length; i++) add(sel[i].dataset.num);
             }
           } else {
             var arr = [];
@@ -1030,6 +1056,7 @@
         return;
       }
       var comboStrings = generateCombosStrings();
+      
       cart.push({
         id: new Date().getTime(),
         ticketName: selectedTicketName,
@@ -1041,7 +1068,8 @@
         amountNum: calc.amountNum,
         amountUnitText: calc.amountUnitText,
         totalAmount: calc.totalAmount,
-        combos: comboStrings
+        combos: comboStrings,
+        rawSelections: getRawSelections() // 追加：マークシート記載指示用の生データ
       });
       goToStep(3);
     }
@@ -1058,7 +1086,6 @@
         emptyMsg.style.color = '#888';
         emptyMsg.textContent = 'カートに馬券がありません。';
         cartList.appendChild(emptyMsg);
-        
         btnGoStep4.style.display = 'none';
       } else {
         btnGoStep4.style.display = 'block';
@@ -1153,15 +1180,13 @@
       renderCart();
     }
 
-    // --- 画面④：マークシートガイド（実践ガイド ＆ マニュアル両対応） ---
+    // --- 画面④：マークシートガイド（カート連動の具体指示 ＆ アコーディオンマニュアル） ---
     function renderSheetGuide() {
       // 1. カート連動の実践ガイド
       var list = document.getElementById("sheetGuideList");
       list.innerHTML = '';
 
-      if (cart.length === 0) {
-        list.innerHTML = '<p style="font-size:12px; color:#888; text-align:center;">カートに馬券が入っていません。（以下のマニュアルをご参照ください）</p>';
-      } else {
+      if (cart.length > 0) {
         var cartHeading = document.createElement('div');
         cartHeading.innerHTML = '<div style="font-weight:bold; font-size:14px; color:#1b5e20; margin-bottom:8px;">🛒 カート内馬券のマークシート指定</div>';
         list.appendChild(cartHeading);
@@ -1193,24 +1218,63 @@
 
           var cardDiv = document.createElement('div');
           cardDiv.className = 'sheet-guide-card';
+
+          // 具体的な塗り方の指示テキストを生成
+          var markDetailsHtml = '';
+          markDetailsHtml += '<li style="margin-bottom:6px;"><b>式別:</b> 「' + item.ticketName + '」を塗りつぶす</li>';
+          
+          if (item.methodCode === 'normal') {
+            markDetailsHtml += '<li style="margin-bottom:6px;"><b>馬番/枠番:</b> 各行ごとに以下を塗りつぶす<br>';
+            item.rawSelections.forEach(function(sel, i) {
+              if (item.ticketCode === 'tansho' || item.ticketCode === 'fukusho' || item.ticketCode === 'ouen') {
+                sel.forEach(function(num) {
+                  markDetailsHtml += ' ・「' + num + '」<br>';
+                });
+              } else {
+                markDetailsHtml += ' ・「' + sel.join((item.ticketCode === 'umatan' || item.ticketCode === 'sanrentan') ? '」→「' : '」-「') + '」<br>';
+              }
+            });
+            markDetailsHtml += '</li>';
+          } else if (item.methodCode === 'box') {
+            markDetailsHtml += '<li style="margin-bottom:6px;"><b>馬番/枠番:</b><br> ・「' + item.rawSelections.join('」「') + '」を全て塗りつぶす</li>';
+          } else if (item.methodCode === 'formation') {
+            markDetailsHtml += '<li style="margin-bottom:6px;"><b>馬番/枠番:</b><br>';
+            if (item.rawSelections[0] && item.rawSelections[0].length > 0) markDetailsHtml += ' ・1着/1頭目: 「' + item.rawSelections[0].join('」「') + '」<br>';
+            if (item.rawSelections[1] && item.rawSelections[1].length > 0) markDetailsHtml += ' ・2着/2頭目: 「' + item.rawSelections[1].join('」「') + '」<br>';
+            if (item.rawSelections[2] && item.rawSelections[2].length > 0) markDetailsHtml += ' ・3着/3頭目: 「' + item.rawSelections[2].join('」「') + '」<br>';
+            markDetailsHtml += '</li>';
+          } else if (item.methodCode === 'nagashi') {
+            markDetailsHtml += '<li style="margin-bottom:6px;"><b>馬番/枠番:</b><br>';
+            if (item.rawSelections[0] && item.rawSelections[0].length > 0) markDetailsHtml += ' ・軸/1頭目: 「' + item.rawSelections[0].join('」「') + '」<br>';
+            if (item.rawSelections[1] && item.rawSelections[1].length > 0) markDetailsHtml += ' ・相手/2頭目: 「' + item.rawSelections[1].join('」「') + '」<br>';
+            if (item.rawSelections[2] && item.rawSelections[2].length > 0) markDetailsHtml += ' ・相手/3頭目: 「' + item.rawSelections[2].join('」「') + '」<br>';
+            markDetailsHtml += '</li>';
+          }
+
+          markDetailsHtml += '<li style="margin-bottom:6px;"><b>金額:</b> 「' + item.amountNum + '」と「' + item.amountUnitText + '」を塗りつぶす</li>';
+
+          // カードの見た目を構築
           cardDiv.innerHTML = 
             '<span class="sheet-type-badge ' + badgeClass + '">' + (idx + 1) + '. ' + item.ticketName + ' (' + item.methodName + ') ➔ ' + cardType + '</span>' +
-            '<div style="font-size:12px; color:#444; margin-bottom:6px;">' +
-              '・<b>式別欄:</b> 「' + item.ticketName + '」にマーク<br>' +
-              '・<b>金額欄:</b> 「' + item.amountNum + '」と「' + item.amountUnitText + '」をマーク<br>' +
-              '・<b>馬番/枠番欄:</b> 選択した番号を塗りつぶします' +
+            
+            '<div style="background-color: #f1f8e9; border: 1px solid #c5e1a5; padding: 12px; border-radius: 6px; font-size: 13px; color: #333; margin-bottom: 12px; margin-top: 8px;">' +
+              '<div style="font-weight:bold; color:#2e7d32; margin-bottom:8px; border-bottom:1px dashed #a5d6a7; padding-bottom:4px;">✏️ このマークシートの塗り方</div>' +
+              '<ul style="margin:0; padding-left:24px;">' + markDetailsHtml + '</ul>' +
             '</div>' +
+
             '<div class="sheet-img-wrap">' +
-              '<img src="' + imgUrl + '" class="sheet-img" alt="マークシート画像" title="クリックして拡大">' +
+              '<img src="' + imgUrl + '" class="sheet-img" alt="マークシート画像">' +
             '</div>';
+          
           list.appendChild(cardDiv);
         });
       }
 
-      // 2. 初心者向けマークシート全種類マニュアル
-      var manualList = document.getElementById("manualList");
-      manualList.innerHTML = '';
+      // 2. 初心者向けマークシート全種類マニュアル（カート状態によって表示変更）
+      var manualSection = document.getElementById("manualSection");
+      manualSection.innerHTML = '';
 
+      var manualHtml = '';
       var manualData = [
         { title: '1. 基本用マークカード（緑）', badge: 'badge-green', url: sheetImages.green, desc: '「通常」や、複数の単勝・複勝を買う際に使用する最も基本的なカードです。迷ったらまずはこれを使います。' },
         { title: '2. ボックス専用マークカード（赤）', badge: 'badge-red', url: sheetImages.redBox, desc: '馬連や3連複などで「選んだ馬のすべての組み合わせ」をまとめて買う（ボックス買い）場合に使用します。' },
@@ -1220,16 +1284,28 @@
       ];
 
       manualData.forEach(function(m) {
-        var mDiv = document.createElement('div');
-        mDiv.className = 'sheet-guide-card';
-        mDiv.innerHTML = 
-          '<span class="sheet-type-badge ' + m.badge + '">' + m.title + '</span>' +
-          '<div style="font-size:12px; color:#444; margin-bottom:6px;">' + m.desc + '</div>' +
-          '<div class="sheet-img-wrap">' +
-            '<img src="' + m.url + '" class="sheet-img" alt="' + m.title + '">' +
+        manualHtml += 
+          '<div class="sheet-guide-card">' +
+            '<span class="sheet-type-badge ' + m.badge + '">' + m.title + '</span>' +
+            '<div style="font-size:12px; color:#444; margin-bottom:6px;">' + m.desc + '</div>' +
+            '<div class="sheet-img-wrap"><img src="' + m.url + '" class="sheet-img" alt="' + m.title + '"></div>' +
           '</div>';
-        manualList.appendChild(mDiv);
       });
+
+      if (cart.length > 0) {
+        // カートに馬券がある場合：マニュアルは折りたたんでスッキリ見せる
+        manualSection.innerHTML = 
+          '<details style="background:#fff; border:1px solid #ddd; border-radius:6px; padding:10px; margin-top:20px;">' +
+            '<summary style="font-weight:bold; cursor:pointer; color:#1565c0; font-size: 14px;">📖 その他すべてのマークカード一覧を見る</summary>' +
+            '<div style="margin-top:15px;">' + manualHtml + '</div>' +
+          '</details>';
+      } else {
+        // カートが空の場合：初めからすべて表示して使い方を見せる
+        manualSection.innerHTML = 
+          '<div style="font-weight:bold; font-size:14px; color:#1b5e20; margin-bottom:8px;">📖 マークシート種類別完全マニュアル</div>' +
+          '<p style="font-size:12px; color:#555; margin-bottom:12px;">購入方法や目的に応じて使い分ける5種類のマークカード一覧です。</p>' +
+          '<div>' + manualHtml + '</div>';
+      }
     }
 
     // --- 共通：合計金額更新 ---
