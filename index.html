@@ -220,8 +220,7 @@
     .site-footer {
       background-color: #111;
       color: #ccc;
-      /* 下部固定バーにリンク類が隠れないよう、padding-bottomを80pxに拡大 */
-      padding: 20px 15px 80px 15px;
+      padding: 20px 15px;
       margin-top: auto;
       border-top: 3px solid #333;
     }
@@ -266,7 +265,7 @@
     .container {
       max-width: 480px;
       margin: 0 auto;
-      padding-bottom: 80px;
+      padding-bottom: 40px;
     }
     .header-bar {
       background-color: #2e7d32;
@@ -343,8 +342,6 @@
     .sheet-img-wrap { border: 1px solid #ccc; border-radius: 4px; overflow: hidden; background: #fafafa; text-align: center; }
     .sheet-img { width: 100%; height: auto; display: block; cursor: pointer; }
     .manual-section { margin-top: 25px; padding-top: 15px; }
-    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background-color: #111; color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.3); z-index: 100; }
-    .bottom-total { font-size: 18px; font-weight: bold; color: #ffcc00; }
   </style>
 </head>
 <body>
@@ -521,9 +518,17 @@
             </div>
           </div>
 
-          <div style="margin-top:12px; text-align:right; font-weight:bold; font-size:14px;">
-            選択中: <span id="currPoints" style="color:#2e7d32;">0</span> 点 
-            (<span id="currTotal" style="color:#2e7d32;">0</span> 円)
+          <!-- 金額サマリーエリア -->
+          <div style="margin-top:12px; padding:12px; background:#f5f5f5; border-radius:6px; border:1px solid #e0e0e0; text-align:right;">
+            <div style="font-size:13px; color:#555; margin-bottom:4px;">
+              現在のカート内: <span id="step2-cart-total">0</span> 円
+            </div>
+            <div style="font-weight:bold; font-size:15px; color:#2e7d32; margin-bottom:8px; border-bottom:1px dashed #ccc; padding-bottom:8px;">
+              この馬券: <span id="currPoints">0</span> 点 (<span id="currTotal">0</span> 円)
+            </div>
+            <div id="step2-grand-total-area" style="font-weight:bold; font-size:16px; color:#d32f2f;">
+              追加後の総合計: <span id="step2-grand-total">0</span> 円
+            </div>
           </div>
 
           <button class="action-btn" onclick="addToCart()">この馬券をカートに追加</button>
@@ -534,7 +539,14 @@
         <!-- 画面③：購入確認・カート -->
         <div id="view-3" class="view-page">
           <p style="font-size:13px; color:#666; margin-top:0;">現在カートに入っている馬券です：</p>
+          
           <div id="cartList"></div>
+
+          <!-- カート内総合計エリア -->
+          <div id="step3-grand-total-area" style="margin-top:15px; padding:15px; background-color:#fff3e0; border:2px solid #ffb74d; border-radius:8px; text-align:center; display:none;">
+            <div style="font-size:13px; color:#e65100; font-weight:bold; margin-bottom:4px;">お支払い総合計</div>
+            <div style="font-size:22px; font-weight:bold; color:#d84315;"><span id="step3-grand-total">0</span> 円</div>
+          </div>
           
           <div style="margin-top: 18px;">
             <button class="action-btn" onclick="goToStep(4)" id="btnGoStep4" style="margin-top: 0;">マークシートの書き方を見る &#10140;</button>
@@ -553,12 +565,6 @@
         </div>
 
       </div>
-    </div>
-
-    <!-- 下部固定の金額バー -->
-    <div class="bottom-bar" id="bottomBar" style="display:none;">
-      <div style="font-size:12px;">合計点数: <span id="grandPoints">0</span> 点</div>
-      <div class="bottom-total">総合計: <span id="grandTotal">0</span> 円</div>
     </div>
   </div>
 
@@ -624,12 +630,10 @@
       var landing = document.getElementById('landingPage');
       var app = document.getElementById('appContainer');
       var subPage = document.getElementById('subPageContainer');
-      var bottomBar = document.getElementById('bottomBar');
 
       landing.classList.remove('active');
       app.classList.remove('active');
       subPage.classList.remove('active');
-      bottomBar.style.display = 'none';
 
       if (viewName === 'landing') {
         landing.classList.add('active');
@@ -705,8 +709,6 @@
         "④ マークシート記載ガイド"
       ];
       document.getElementById("pageTitle").innerText = titles[stepNum - 1];
-      
-      document.getElementById("bottomBar").style.display = (stepNum >= 2) ? 'flex' : 'none';
 
       var btnReturn1 = document.getElementById('btnReturnCartFrom1');
       var btnReturn2 = document.getElementById('btnReturnCartFrom2');
@@ -1260,12 +1262,28 @@
       }
     }
 
+    // 各フロー内（インライン）に総合計を反映する形に改修
     function updateGrandTotal(currPts, currAmt) {
-      var gPoints = 0, gTotal = 0;
-      for (var i = 0; i < cart.length; i++) { gPoints += cart[i].points; gTotal += cart[i].totalAmount; }
-      if (document.getElementById("view-2").classList.contains('active')) { gPoints += (currPts || 0); gTotal += (currAmt || 0); }
-      document.getElementById("grandPoints").innerText = gPoints;
-      document.getElementById("grandTotal").innerText = gTotal.toLocaleString();
+      var cartPoints = 0, cartTotal = 0;
+      for (var i = 0; i < cart.length; i++) {
+        cartPoints += cart[i].points;
+        cartTotal += cart[i].totalAmount;
+      }
+
+      // Step 2（買い目選択画面）の金額サマリーを更新
+      var step2CartTotalEl = document.getElementById("step2-cart-total");
+      var step2GrandTotalEl = document.getElementById("step2-grand-total");
+      if (step2CartTotalEl && step2GrandTotalEl) {
+        step2CartTotalEl.innerText = cartTotal.toLocaleString();
+        step2GrandTotalEl.innerText = (cartTotal + (currAmt || 0)).toLocaleString();
+      }
+
+      // Step 3（カート確認画面）の総合計エリアを更新
+      var step3TotalArea = document.getElementById("step3-grand-total-area");
+      if (step3TotalArea) {
+        document.getElementById("step3-grand-total").innerText = cartTotal.toLocaleString();
+        step3TotalArea.style.display = (cart.length > 0) ? 'block' : 'none';
+      }
     }
   </script>
 </body>
