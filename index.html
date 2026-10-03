@@ -9,9 +9,12 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: #f0f4f8;
-      padding: 0; /* 全体のpaddingをリセット */
+      padding: 0;
       margin: 0;
       color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
 
     /* ==========================================
@@ -20,6 +23,7 @@
     .landing-wrapper {
       padding: 12px;
       padding-top: 30px;
+      flex: 1;
     }
     .landing-container {
       max-width: 600px;
@@ -65,7 +69,7 @@
     }
     .start-btn {
       display: inline-block;
-      background-color: #e53935; /* 目立つ赤色 */
+      background-color: #e53935;
       color: white;
       font-size: 18px;
       font-weight: bold;
@@ -125,18 +129,60 @@
       color: #666;
       line-height: 1.4;
     }
-    .footer-text {
+
+    /* ==========================================
+       黒い縁取りのフッター（下部広告・リンクエリア）
+       ========================================== */
+    .site-footer {
+      background-color: #111;
+      color: #ccc;
+      padding: 20px 15px;
+      margin-top: auto;
+      border-top: 3px solid #333;
+    }
+    .footer-content {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    /* 広告掲載スペース用フレーム（仮枠） */
+    .ad-banner-box {
+      background-color: #222;
+      border: 1px dashed #555;
+      color: #777;
+      padding: 15px;
       font-size: 12px;
-      color: #999;
-      margin-bottom: 30px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+    /* フッターリンク集 */
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 15px;
+      font-size: 12px;
+    }
+    .footer-links a {
+      color: #fff;
+      text-decoration: none;
+    }
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+    .footer-copyright {
+      font-size: 11px;
+      color: #777;
     }
 
     /* ==========================================
-       メインアプリ用のスタイル（既存のコード）
+       メインアプリ用のスタイル
        ========================================== */
     .app-wrapper {
       padding: 12px;
-      display: none; /* 初期状態では隠しておく */
+      display: none;
+      flex: 1;
     }
     .container {
       max-width: 480px;
@@ -153,7 +199,6 @@
       font-size: 16px;
       position: relative;
     }
-    /* トップへ戻るボタン */
     .header-back-btn {
       position: absolute;
       left: 10px;
@@ -179,14 +224,8 @@
       padding: 6px 2px;
       border-right: 1px solid #1b5e20;
     }
-    .step-item:last-child {
-      border-right: none;
-    }
-    .step-item.active {
-      background-color: #43a047;
-      color: #fff;
-      font-weight: bold;
-    }
+    .step-item:last-child { border-right: none; }
+    .step-item.active { background-color: #43a047; color: #fff; font-weight: bold; }
     .main-card {
       background-color: #fff;
       border-radius: 0 0 8px 8px;
@@ -194,20 +233,16 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       margin-bottom: 15px;
     }
-    .view-page {
-      display: none;
-    }
-    .view-page.active {
-      display: block;
-    }
+    .view-page { display: none; }
+    .view-page.active { display: block; }
 
-    /* 券種選択ボタンなど（以降は既存と同じ） */
+    /* 各種パーツ */
     .ticket-list { display: flex; flex-direction: column; gap: 12px; }
     .ticket-item { display: flex; align-items: flex-start; gap: 10px; background-color: #f9f9f9; border: 2px solid #e0e0e0; border-radius: 8px; padding: 10px; cursor: pointer; transition: all 0.2s; }
     .ticket-item:hover { border-color: #a5d6a7; }
     .ticket-item.selected { border-color: #2e7d32 !important; background-color: #e8f5e9 !important; box-shadow: 0 2px 6px rgba(46,125,50,0.3); }
     .ticket-btn-wrap { flex-shrink: 0; width: 90px; }
-    .ticket-btn { width: 100%; background-color: #fff; border: 2px solid #2e7d32; border-radius: 6px; padding: 10px 0; text-align: center; font-weight: bold; font-size: 14px; color: #1b5e20; transition: all 0.2s; box-sizing: border-box; }
+    .ticket-btn { width: 100%; background-color: #fff; border: 2px solid #2e7d32; border-radius: 6px; padding: 10px 0; text-align: center; font-weight: bold; font-size: 14px; color: #1b5e20; box-sizing: border-box; }
     .ticket-item.selected .ticket-btn { background-color: #2e7d32; color: #fff; }
     .ticket-desc { flex: 1; font-size: 12px; color: #444; }
     .ticket-desc .desc-title { font-weight: bold; font-size: 13px; color: #1b5e20; margin-bottom: 4px; }
@@ -243,6 +278,19 @@
     .manual-section { margin-top: 25px; padding-top: 15px; }
     .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background-color: #111; color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.3); z-index: 100; }
     .bottom-total { font-size: 18px; font-weight: bold; color: #ffcc00; }
+
+    /* モーダル（規約・ポリシー表示用） */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 15px;
+    }
+    .modal-card {
+      background: #fff; max-width: 500px; width: 100%; max-height: 80vh; border-radius: 8px;
+      display: flex; flexDirection: column; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .modal-header { background: #1b5e20; color: white; padding: 12px 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+    .modal-close { background: none; border: none; color: white; font-size: 18px; cursor: pointer; }
+    .modal-body { padding: 15px; overflow-y: auto; font-size: 13px; line-height: 1.6; color: #444; }
   </style>
 </head>
 <body>
@@ -295,11 +343,6 @@
             <p>カートに入れた馬券の内容に合わせて、どの色のマークカードにどうやって記入すればいいかをズバリ指示してくれます。</p>
           </div>
         </div>
-      </div>
-
-      <div class="footer-text">
-        © 2026 馬券購入シミュレーター<br>
-        ※実際の勝馬投票券の購入はJRAの公式サイトや競馬場等で行ってください。
       </div>
 
     </div>
@@ -392,7 +435,6 @@
             </div>
           </div>
           <button class="action-btn" onclick="confirmTicketSelection()" style="margin-top: 18px;">次へ（買い目選択へ） &#10140;</button>
-          <!-- カート追加中（カートに中身がある）場合のみ表示されるボタン -->
           <button class="action-btn secondary" onclick="goToStep(3)" id="btnReturnCartFrom1" style="margin-top: 8px; display: none;">カート確認に戻る</button>
         </div>
 
@@ -425,7 +467,6 @@
 
           <button class="action-btn" onclick="addToCart()">この馬券をカートに追加</button>
           <button class="action-btn secondary" onclick="goToStep(1)" style="margin-top:6px;">券種選びに戻る</button>
-          <!-- カート追加中（カートに中身がある）場合のみ表示されるボタン -->
           <button class="action-btn secondary" onclick="goToStep(3)" id="btnReturnCartFrom2" style="margin-top:6px; display: none;">カート確認に戻る</button>
         </div>
 
@@ -461,7 +502,47 @@
   </div>
 
   <!-- ==============================================
-       3. JavaScript (機能ロジック)
+       3. 黒い縁取りのフッター（広告枠 ＆ 必須ページリンク）
+       ============================================== -->
+  <footer class="site-footer">
+    <div class="footer-content">
+      <!-- 広告掲載用スペース（将来的にここにGoogle AdSenseなどのタグを貼れます） -->
+      <div class="ad-banner-box">
+        [ 広告掲載スペース ]
+      </div>
+
+      <!-- 広告審査やサイト運営に必須のページリンク（モーダルでポップアップ表示） -->
+      <div class="footer-links">
+        <a href="javascript:void(0)" onclick="openModal('privacy')">プライバシーポリシー</a>
+        <a href="javascript:void(0)" onclick="openModal('terms')">利用規約（免責事項）</a>
+        <a href="javascript:void(0)" onclick="openModal('faq')">よくある質問</a>
+        <a href="javascript:void(0)" onclick="openModal('contact')">お問い合わせ</a>
+      </div>
+
+      <div class="footer-copyright">
+        © 2026 馬券購入シミュレーター All Rights Reserved.<br>
+        ※当サイトは個人のシミュレーションツールです。実際の馬券購入は自己責任で行ってください。
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==============================================
+       4. 各種ポリシー・規約のポップアップ（モーダル）
+       ============================================== -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <span id="modalTitle">タイトル</span>
+        <button class="modal-close" onclick="closeModalDirect()">×</button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- 中身はJavaScriptで切り替わります -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==============================================
+       5. JavaScript (機能ロジック)
        ============================================== -->
   <script>
     var pendingTicketName = '';
@@ -480,7 +561,6 @@
       redForm: './redForm.png'
     };
 
-    // --- 【新規追加】トップページとの切り替え ---
     function startApp() {
       document.getElementById('landingPage').style.display = 'none';
       document.getElementById('appContainer').style.display = 'block';
@@ -493,7 +573,6 @@
       document.getElementById('bottomBar').style.display = 'none';
     }
 
-    // --- 画面遷移コントロール ---
     function goToStep(stepNum) {
       for (var i = 1; i <= 4; i++) {
         var stepEl = document.getElementById('step-' + i);
@@ -513,7 +592,6 @@
         "③ 購入予定馬券の確認（カート）",
         "④ マークシート記載ガイド"
       ];
-      // タイトルの横に「◀ トップへ」ボタンを追加して更新
       document.getElementById("pageTitle").innerHTML = '<span class="header-back-btn" onclick="returnToTop()">◀ トップへ</span>' + titles[stepNum - 1];
       
       document.getElementById("bottomBar").style.display = (stepNum >= 2) ? 'flex' : 'none';
@@ -529,7 +607,37 @@
       window.scrollTo(0, 0);
     }
 
-    // --- 画面①：券種選択 ---
+    // --- モーダル（規約ページなどの表示）制御 ---
+    function openModal(type) {
+      var title = document.getElementById("modalTitle");
+      var body = document.getElementById("modalBody");
+      var overlay = document.getElementById("modalOverlay");
+
+      if (type === 'privacy') {
+        title.innerText = "プライバシーポリシー";
+        body.innerHTML = '<h3>個人情報の利用について</h3><p>当サイト（馬券購入シミュレーター）では、アクセス解析や広告配信のためにCookieを使用することがあります。Cookieによりブラウザを識別しますが、個人の身元を特定するものではありません。</p><h3>広告の配信について</h3><p>今後、第三者配信の広告サービス（Google AdSenseなど）を導入する予定です。広告配信事業者はユーザーの興味に応じた広告を表示するためにCookieを使用することがあります。</p>';
+      } else if (type === 'terms') {
+        title.innerText = "利用規約（免責事項）";
+        body.innerHTML = '<h3>サービスの利用について</h3><p>当サイトは、馬券の購入点数や金額を計算し、マークシートの記入例を案内するための無料シミュレーションツールです。実際の馬券購入を勧誘・強制するものではありません。</p><h3>免責事項</h3><p>当サイトに掲載されている情報を用いて行う一切の行為、および被った損害・損失について、運営者は一切の責任を負いません。馬券の購入はご自身の判断と責任において行ってください。</p>';
+      } else if (type === 'faq') {
+        title.innerText = "よくある質問";
+        body.innerHTML = '<h4>Q. 利用料金はかかりますか？</h4><p>A. すべて無料でご利用いただけます。</p><h4>Q. このサイトから直接馬券を買えますか？</h4><p>A. いいえ。当サイトは買い目のシミュレーションとマークシートの書き方を確認するためのツールです。実際の購入は競馬場やJRAの公式サービス等で行ってください。</p><h4>Q. どんな馬券に対応していますか？</h4><p>A. 単勝、複勝、応援馬券、枠連、馬連、馬単、ワイド、3連複、3連単の全9種類に対応しています。</p>';
+      } else if (type === 'contact') {
+        title.innerText = "お問い合わせ";
+        body.innerHTML = '<p>不具合の報告やご要望などがございましたら、以下のメールアドレスまでご連絡ください。</p><p><b>メールアドレス:</b> support@example.com<br>（※スパム対策のため表記を変更している場合があります）</p>';
+      }
+
+      overlay.style.display = "flex";
+    }
+
+    function closeModal(e) {
+      document.getElementById("modalOverlay").style.display = "none";
+    }
+    function closeModalDirect() {
+      document.getElementById("modalOverlay").style.display = "none";
+    }
+
+    // --- 券種選択・買い目・カート等の既存ロジック ---
     function chooseTicket(name, code, element) {
       pendingTicketName = name;
       pendingTicketCode = code;
@@ -552,7 +660,6 @@
       goToStep(2);
     }
 
-    // --- 画面②：買い目選択UI生成 ---
     function setupStep2UI() {
       var tabGroup = document.getElementById("method-tab-group");
       tabGroup.innerHTML = '';
@@ -896,9 +1003,9 @@
         } else if (code === 'sanrenfuku' || code === 'sanrentan') {
           for(var i=0; i<r1.length; i++) {
             for(var j=0; j<r2.length; j++) {
-              if(r1[i] === r2[j]) continue;
+              if(i === j) continue;
               for(var k=0; k<r3.length; k++) {
-                if(r1[i] === r3[k] || r2[j] === r3[k]) continue;
+                if(i === r3[k] || r2[j] === r3[k]) continue;
                 if (code === 'sanrenfuku' && (r1[i] > r2[j] || r2[j] > r3[k])) continue;
                 add(r1[i] + ((code === 'sanrentan') ? '→' : '-') + r2[j] + ((code === 'sanrentan') ? '→' : '-') + r3[k]);
               }
