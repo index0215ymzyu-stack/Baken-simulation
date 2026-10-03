@@ -209,6 +209,13 @@
       border-color: #222;
     }
 
+    .mark-box.disabled {
+      background-color: #f5f5f5;
+      color: #bbb;
+      border-color: #e0e0e0;
+      cursor: not-allowed;
+    }
+
     .amount-select-container {
       margin-top: 15px;
       background: #f9f9f9;
@@ -523,7 +530,7 @@
     var normalBuyCount = 1;
     var cart = [];
 
-// --- マークシート画像URLのマッピング ---
+    // --- マークシート画像URLのマッピング ---
     var sheetImages = {
       green: './green.png',        // 基本用（緑）
       blueFuku: './blueFuku.png',  // 連複流し（青）
@@ -647,6 +654,50 @@
       return ['1着・1頭目'];
     }
 
+    // --- グレーアウト（選択不可）状態を更新する関数 ---
+    function updateDisabledState(blockNum, labelsLength) {
+      if (selectedTicketCode === 'wakuren') return; // 枠連はゾロ目(同じ番号)が買えるので除外
+
+      // 各行で選ばれている番号を取得
+      var selectedPerRow = [];
+      for (var idx = 1; idx <= labelsLength; idx++) {
+        var grid = document.getElementById('norm-' + blockNum + '-' + idx);
+        var sel = grid ? grid.querySelectorAll('.mark-box.selected') : [];
+        if (sel.length > 0) {
+          selectedPerRow[idx] = parseInt(sel[0].dataset.num);
+        } else {
+          selectedPerRow[idx] = null;
+        }
+      }
+
+      // 各マスのグレーアウト状態を判定・適用
+      for (var idx = 1; idx <= labelsLength; idx++) {
+        var grid = document.getElementById('norm-' + blockNum + '-' + idx);
+        if (!grid) continue;
+        var boxes = grid.querySelectorAll('.mark-box');
+        
+        for (var i = 0; i < boxes.length; i++) {
+          var num = parseInt(boxes[i].dataset.num);
+          var isDisabled = false;
+          
+          // 他の行ですでに同じ番号が選ばれていたらグレーアウト
+          for (var otherIdx = 1; otherIdx <= labelsLength; otherIdx++) {
+            if (otherIdx !== idx && selectedPerRow[otherIdx] === num) {
+              isDisabled = true;
+              break;
+            }
+          }
+          
+          if (isDisabled) {
+            boxes[i].classList.add('disabled');
+            boxes[i].classList.remove('selected');
+          } else {
+            boxes[i].classList.remove('disabled');
+          }
+        }
+      }
+    }
+
     function renderSelectionRows() {
       var area = document.getElementById("selection-area");
       area.innerHTML = '';
@@ -691,10 +742,24 @@
                 box.innerText = i;
                 box.dataset.num = i;
                 box.onclick = function() {
-                  var isSelected = this.classList.contains('selected');
-                  var boxes = grid.querySelectorAll('.mark-box');
-                  for (var j = 0; j < boxes.length; j++) boxes[j].classList.remove('selected');
-                  if (!isSelected) this.classList.add('selected');
+                  if (this.classList.contains('disabled')) return; // グレーアウト時はクリック無効
+                  
+                  // 単勝・複勝・応援馬券は複数選択可能にする
+                  if (selectedTicketCode === 'tansho' || selectedTicketCode === 'fukusho' || selectedTicketCode === 'ouen') {
+                    this.classList.toggle('selected');
+                  } else {
+                    // それ以外は1行につき1つだけ選択
+                    var isSelected = this.classList.contains('selected');
+                    var boxes = grid.querySelectorAll('.mark-box');
+                    for (var j = 0; j < boxes.length; j++) boxes[j].classList.remove('selected');
+                    if (!isSelected) this.classList.add('selected');
+                  }
+                  
+                  // グレーアウト状態の更新
+                  if (currentMethod === 'normal') {
+                    updateDisabledState(blockNum, labels.length);
+                  }
+                  
                   calculateCurrentSelection();
                 };
                 grid.appendChild(box);
@@ -772,22 +837,31 @@
 
       if (currentMethod === 'normal') {
         for (var b = 1; b <= normalBuyCount; b++) {
-          var isValid = true;
-          var selectedNums = [];
-          for (var idx = 1; idx <= labels.length; idx++) {
-            var grid = document.getElementById('norm-' + b + '-' + idx);
-            if (!grid) { isValid = false; break; }
-            var sel = grid.querySelectorAll('.mark-box.selected');
-            if (sel.length !== 1) { isValid = false; break; }
-            selectedNums.push(parseInt(sel[0].dataset.num));
-          }
-          if (isValid) {
-            if (selectedTicketCode !== 'wakuren') {
-              var unique = [];
-              for(var k=0; k<selectedNums.length; k++) if(unique.indexOf(selectedNums[k])===-1) unique.push(selectedNums[k]);
-              if (unique.length === selectedNums.length) points++;
-            } else {
-              points++;
+          // 単勝・複勝・応援の場合は選んだ数がそのまま点数になる
+          if (selectedTicketCode === 'tansho' || selectedTicketCode === 'fukusho' || selectedTicketCode === 'ouen') {
+            var grid = document.getElementById('norm-' + b + '-1');
+            if (grid) {
+              var sel = grid.querySelectorAll('.mark-box.selected');
+              points += sel.length;
+            }
+          } else {
+            var isValid = true;
+            var selectedNums = [];
+            for (var idx = 1; idx <= labels.length; idx++) {
+              var grid = document.getElementById('norm-' + b + '-' + idx);
+              if (!grid) { isValid = false; break; }
+              var sel = grid.querySelectorAll('.mark-box.selected');
+              if (sel.length !== 1) { isValid = false; break; }
+              selectedNums.push(parseInt(sel[0].dataset.num));
+            }
+            if (isValid) {
+              if (selectedTicketCode !== 'wakuren') {
+                var unique = [];
+                for(var k=0; k<selectedNums.length; k++) if(unique.indexOf(selectedNums[k])===-1) unique.push(selectedNums[k]);
+                if (unique.length === selectedNums.length) points++;
+              } else {
+                points++;
+              }
             }
           }
         }
@@ -867,18 +941,29 @@
 
       if (method === 'normal') {
         for (var b = 1; b <= normalBuyCount; b++) {
-          var arr = [];
-          var isValid = true;
-          for (var idx = 1; idx <= labels.length; idx++) {
-            var grid = document.getElementById('norm-' + b + '-' + idx);
-            if (!grid) { isValid = false; break; }
-            var sel = grid.querySelectorAll('.mark-box.selected');
-            if (sel.length !== 1) { isValid = false; break; }
-            arr.push(parseInt(sel[0].dataset.num));
-          }
-          if (isValid) {
-            var sep = (code === 'umatan' || code === 'sanrentan') ? '→' : '-';
-            add(arr.join(sep));
+          // 単勝・複勝・応援の場合は、選んだ番号を個別の馬券として追加する
+          if (code === 'tansho' || code === 'fukusho' || code === 'ouen') {
+            var grid = document.getElementById('norm-' + b + '-1');
+            if (grid) {
+              var sel = grid.querySelectorAll('.mark-box.selected');
+              for(var i = 0; i < sel.length; i++) {
+                add(sel[i].dataset.num);
+              }
+            }
+          } else {
+            var arr = [];
+            var isValid = true;
+            for (var idx = 1; idx <= labels.length; idx++) {
+              var grid = document.getElementById('norm-' + b + '-' + idx);
+              if (!grid) { isValid = false; break; }
+              var sel = grid.querySelectorAll('.mark-box.selected');
+              if (sel.length !== 1) { isValid = false; break; }
+              arr.push(parseInt(sel[0].dataset.num));
+            }
+            if (isValid) {
+              var sep = (code === 'umatan' || code === 'sanrentan') ? '→' : '-';
+              add(arr.join(sep));
+            }
           }
         }
       } else if (method === 'box') {
