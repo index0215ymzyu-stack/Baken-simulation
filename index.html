@@ -4,21 +4,145 @@
   <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>馬券購入シミュレーター | 買い目と金額をサクッと計算</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: #f0f4f8;
-      padding: 12px;
+      padding: 0; /* 全体のpaddingをリセット */
       margin: 0;
       color: #333;
     }
 
+    /* ==========================================
+       トップページ（ランディングページ）用のスタイル
+       ========================================== */
+    .landing-wrapper {
+      padding: 12px;
+      padding-top: 30px;
+    }
+    .landing-container {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .hero-section {
+      background-color: #fff;
+      padding: 40px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      margin-bottom: 25px;
+      border-top: 8px solid #1b5e20;
+    }
+    .hero-title {
+      font-size: 26px;
+      color: #1b5e20;
+      font-weight: bold;
+      margin-top: 0;
+      margin-bottom: 15px;
+      letter-spacing: 1px;
+    }
+    .hero-subtitle {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 25px;
+      line-height: 1.6;
+    }
+    .hero-badges {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+    .hero-badge {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      border: 1px solid #a5d6a7;
+    }
+    .start-btn {
+      display: inline-block;
+      background-color: #e53935; /* 目立つ赤色 */
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 16px 40px;
+      border-radius: 30px;
+      text-decoration: none;
+      box-shadow: 0 4px 10px rgba(229, 57, 53, 0.3);
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+      width: 80%;
+      max-width: 300px;
+    }
+    .start-btn:hover {
+      background-color: #d32f2f;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(229, 57, 53, 0.4);
+    }
+    .feature-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-align: left;
+      margin-bottom: 40px;
+    }
+    .feature-card {
+      background: #fff;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      border-left: 5px solid #43a047;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .feature-number {
+      background: #1b5e20;
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .feature-text h3 {
+      margin: 0 0 4px 0;
+      font-size: 15px;
+      color: #1b5e20;
+    }
+    .feature-text p {
+      margin: 0;
+      font-size: 12px;
+      color: #666;
+      line-height: 1.4;
+    }
+    .footer-text {
+      font-size: 12px;
+      color: #999;
+      margin-bottom: 30px;
+    }
+
+    /* ==========================================
+       メインアプリ用のスタイル（既存のコード）
+       ========================================== */
+    .app-wrapper {
+      padding: 12px;
+      display: none; /* 初期状態では隠しておく */
+    }
     .container {
       max-width: 480px;
       margin: 0 auto;
       padding-bottom: 80px;
     }
-
     .header-bar {
       background-color: #1b5e20;
       color: white;
@@ -27,8 +151,22 @@
       border-radius: 8px 8px 0 0;
       font-weight: bold;
       font-size: 16px;
+      position: relative;
     }
-
+    /* トップへ戻るボタン */
+    .header-back-btn {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: white;
+      text-decoration: none;
+      font-size: 12px;
+      background: rgba(0,0,0,0.2);
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
     .step-indicator {
       display: flex;
       background-color: #2e7d32;
@@ -36,23 +174,19 @@
       font-size: 11px;
       text-align: center;
     }
-
     .step-item {
       flex: 1;
       padding: 6px 2px;
       border-right: 1px solid #1b5e20;
     }
-
     .step-item:last-child {
       border-right: none;
     }
-
     .step-item.active {
       background-color: #43a047;
       color: #fff;
       font-weight: bold;
     }
-
     .main-card {
       background-color: #fff;
       border-radius: 0 0 8px 8px;
@@ -60,467 +194,275 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       margin-bottom: 15px;
     }
-
     .view-page {
       display: none;
     }
-
     .view-page.active {
       display: block;
     }
 
-    /* === 券種選択ボタン === */
-    .ticket-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .ticket-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      background-color: #f9f9f9;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 10px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .ticket-item:hover {
-      border-color: #a5d6a7;
-    }
-
-    .ticket-item.selected {
-      border-color: #2e7d32 !important;
-      background-color: #e8f5e9 !important;
-      box-shadow: 0 2px 6px rgba(46,125,50,0.3);
-    }
-
-    .ticket-btn-wrap {
-      flex-shrink: 0;
-      width: 90px;
-    }
-
-    .ticket-btn {
-      width: 100%;
-      background-color: #fff;
-      border: 2px solid #2e7d32;
-      border-radius: 6px;
-      padding: 10px 0;
-      text-align: center;
-      font-weight: bold;
-      font-size: 14px;
-      color: #1b5e20;
-      transition: all 0.2s;
-      box-sizing: border-box;
-    }
-
-    .ticket-item.selected .ticket-btn {
-      background-color: #2e7d32;
-      color: #fff;
-    }
-
-    .ticket-desc {
-      flex: 1;
-      font-size: 12px;
-      color: #444;
-    }
-
-    .ticket-desc .desc-title {
-      font-weight: bold;
-      font-size: 13px;
-      color: #1b5e20;
-      margin-bottom: 4px;
-    }
-
-    .ticket-desc ul {
-      margin: 0;
-      padding-left: 14px;
-    }
-
-    .ticket-desc li {
-      margin-bottom: 3px;
-      line-height: 1.35;
-    }
-
-    /* === 買い目選択・タブ === */
-    .tab-group {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 10px;
-    }
-
-    .tab-btn {
-      flex: 1;
-      padding: 8px 2px;
-      background-color: #e0e0e0;
-      border: none;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .tab-btn.active {
-      background-color: #2e7d32;
-      color: white;
-    }
-
-    .row-block {
-      margin-bottom: 12px;
-      border-bottom: 1px dashed #e0e0e0;
-      padding-bottom: 8px;
-    }
-
-    .row-title {
-      font-size: 13px;
-      font-weight: bold;
-      margin-bottom: 6px;
-      display: flex;
-      justify-content: space-between;
-      color: #1b5e20;
-    }
-
-    .number-grid {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 6px;
-    }
-
-    .mark-box {
-      border: 1px solid #ccc;
-      background-color: #fff;
-      border-radius: 4px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 14px;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .mark-box.selected {
-      background-color: #222;
-      color: #fff;
-      border-color: #222;
-    }
-
-    .mark-box.disabled {
-      background-color: #f5f5f5;
-      color: #bbb;
-      border-color: #e0e0e0;
-      cursor: not-allowed;
-    }
-
-    .amount-select-container {
-      margin-top: 15px;
-      background: #f9f9f9;
-      padding: 12px;
-      border-radius: 6px;
-      border: 1px solid #e0e0e0;
-    }
-
-    .amount-select-title {
-      font-size: 13px;
-      font-weight: bold;
-      margin-bottom: 8px;
-      color: #1b5e20;
-    }
-
-    .amount-select-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .amount-select-row select {
-      flex: 1;
-      padding: 8px;
-      font-size: 15px;
-      font-weight: bold;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      background-color: #fff;
-    }
-
-    /* === アクションボタン === */
-    .action-btn {
-      width: 100%;
-      padding: 12px;
-      background-color: #2e7d32;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 15px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
+    /* 券種選択ボタンなど（以降は既存と同じ） */
+    .ticket-list { display: flex; flex-direction: column; gap: 12px; }
+    .ticket-item { display: flex; align-items: flex-start; gap: 10px; background-color: #f9f9f9; border: 2px solid #e0e0e0; border-radius: 8px; padding: 10px; cursor: pointer; transition: all 0.2s; }
+    .ticket-item:hover { border-color: #a5d6a7; }
+    .ticket-item.selected { border-color: #2e7d32 !important; background-color: #e8f5e9 !important; box-shadow: 0 2px 6px rgba(46,125,50,0.3); }
+    .ticket-btn-wrap { flex-shrink: 0; width: 90px; }
+    .ticket-btn { width: 100%; background-color: #fff; border: 2px solid #2e7d32; border-radius: 6px; padding: 10px 0; text-align: center; font-weight: bold; font-size: 14px; color: #1b5e20; transition: all 0.2s; box-sizing: border-box; }
+    .ticket-item.selected .ticket-btn { background-color: #2e7d32; color: #fff; }
+    .ticket-desc { flex: 1; font-size: 12px; color: #444; }
+    .ticket-desc .desc-title { font-weight: bold; font-size: 13px; color: #1b5e20; margin-bottom: 4px; }
+    .ticket-desc ul { margin: 0; padding-left: 14px; }
+    .ticket-desc li { margin-bottom: 3px; line-height: 1.35; }
+    .tab-group { display: flex; gap: 4px; margin-bottom: 10px; }
+    .tab-btn { flex: 1; padding: 8px 2px; background-color: #e0e0e0; border: none; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; }
+    .tab-btn.active { background-color: #2e7d32; color: white; }
+    .row-block { margin-bottom: 12px; border-bottom: 1px dashed #e0e0e0; padding-bottom: 8px; }
+    .row-title { font-size: 13px; font-weight: bold; margin-bottom: 6px; display: flex; justify-content: space-between; color: #1b5e20; }
+    .number-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+    .mark-box { border: 1px solid #ccc; background-color: #fff; border-radius: 4px; height: 36px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; cursor: pointer; user-select: none; }
+    .mark-box.selected { background-color: #222; color: #fff; border-color: #222; }
+    .mark-box.disabled { background-color: #f5f5f5; color: #bbb; border-color: #e0e0e0; cursor: not-allowed; }
+    .amount-select-container { margin-top: 15px; background: #f9f9f9; padding: 12px; border-radius: 6px; border: 1px solid #e0e0e0; }
+    .amount-select-title { font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #1b5e20; }
+    .amount-select-row { display: flex; align-items: center; gap: 8px; }
+    .amount-select-row select { flex: 1; padding: 8px; font-size: 15px; font-weight: bold; border-radius: 4px; border: 1px solid #ccc; background-color: #fff; }
+    .action-btn { width: 100%; padding: 12px; background-color: #2e7d32; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     .action-btn.secondary { background-color: #757575; }
     .action-btn.primary-blue { background-color: #0288d1; }
-
-    /* === カート内アイテム === */
-    .cart-item {
-      background-color: #f9f9f9;
-      border-left: 4px solid #2e7d32;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 4px;
-      position: relative;
-    }
-
-    .cart-item-title {
-      font-weight: bold;
-      font-size: 14px;
-      color: #1b5e20;
-    }
-
-    .cart-item-detail {
-      font-size: 12px;
-      color: #666;
-      margin-top: 4px;
-    }
-
-    .cart-item-delete {
-      position: absolute;
-      right: 10px;
-      top: 10px;
-      background: #e53935;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 4px 8px;
-      font-size: 11px;
-      cursor: pointer;
-    }
-
-    /* === マークシートガイド（ページ4） === */
-    .sheet-guide-card {
-      background-color: #fff;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 15px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    }
-
-    .sheet-type-badge {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: bold;
-      color: white;
-      margin-bottom: 8px;
-    }
-
+    .cart-item { background-color: #f9f9f9; border-left: 4px solid #2e7d32; padding: 10px; margin-bottom: 10px; border-radius: 4px; position: relative; }
+    .cart-item-title { font-weight: bold; font-size: 14px; color: #1b5e20; }
+    .cart-item-detail { font-size: 12px; color: #666; margin-top: 4px; }
+    .cart-item-delete { position: absolute; right: 10px; top: 10px; background: #e53935; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer; }
+    .sheet-guide-card { background-color: #fff; border: 2px solid #e0e0e0; border-radius: 8px; padding: 12px; margin-bottom: 15px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+    .sheet-type-badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: white; margin-bottom: 8px; }
     .badge-green { background-color: #2e7d32; }
     .badge-blue { background-color: #1565c0; }
     .badge-red { background-color: #c62828; }
-
-    .sheet-img-wrap {
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      overflow: hidden;
-      background: #fafafa;
-      text-align: center;
-    }
-
-    .sheet-img {
-      width: 100%;
-      height: auto;
-      display: block;
-      cursor: pointer;
-    }
-
-    /* マニュアルセクション用 */
-    .manual-section {
-      margin-top: 25px;
-      padding-top: 15px;
-    }
-
-    /* === 下部固定バー === */
-    .bottom-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: #111;
-      color: white;
-      padding: 10px 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
-      z-index: 100;
-    }
-
-    .bottom-total {
-      font-size: 18px;
-      font-weight: bold;
-      color: #ffcc00;
-    }
+    .sheet-img-wrap { border: 1px solid #ccc; border-radius: 4px; overflow: hidden; background: #fafafa; text-align: center; }
+    .sheet-img { width: 100%; height: auto; display: block; cursor: pointer; }
+    .manual-section { margin-top: 25px; padding-top: 15px; }
+    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background-color: #111; color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.3); z-index: 100; }
+    .bottom-total { font-size: 18px; font-weight: bold; color: #ffcc00; }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <div class="header-bar" id="pageTitle">① 馬券の種類を選択</div>
-    <div class="step-indicator">
-      <div class="step-item active" id="step-1">1.券種選択</div>
-      <div class="step-item" id="step-2">2.買い目選択</div>
-      <div class="step-item" id="step-3">3.購入確認</div>
-      <div class="step-item" id="step-4">4.マークシート</div>
-    </div>
-
-    <div class="main-card">
+  <!-- ==============================================
+       1. トップページ（ランディングページ）
+       ============================================== -->
+  <div class="landing-wrapper" id="landingPage">
+    <div class="landing-container">
       
-      <!-- 画面①：馬券種選択 -->
-      <div id="view-1" class="view-page active">
-        <p style="font-size: 13px; color: #666; margin-top:0; margin-bottom: 12px;">購入したい馬券の種類を選択してください：</p>
-        <div class="ticket-list">
-          <div class="ticket-item" id="ticket-item-tansho" onclick="chooseTicket('単勝', 'tansho', this)">
-            <div class="ticket-btn-wrap"><div class="ticket-btn">単勝</div></div>
-            <div class="ticket-desc">
-              <div class="desc-title">1着になる馬を当てる馬券</div>
-              <ul><li>最もシンプルな馬券。1着になる馬を番号で指定します。</li></ul>
-            </div>
-          </div>
-          <div class="ticket-item" id="ticket-item-fukusho" onclick="chooseTicket('複勝', 'fukusho', this)">
-            <div class="ticket-btn-wrap"><div class="ticket-btn">複勝</div></div>
-            <div class="ticket-desc">
-              <div class="desc-title">3着までに入る馬を当てる馬券</div>
-              <ul><li>出走頭数によって3着（または2着）までに入れば的中です。</li></ul>
-            </div>
-          </div>
-          <div class="ticket-item" id="ticket-item-ouen" onclick="chooseTicket('応援馬券', 'ouen', this)">
-            <div class="ticket-btn-wrap"><div class="ticket-btn">応援馬券</div></div>
-            <div class="ticket-desc">
-              <div class="desc-title">「単勝」と「複勝」を同時に購入</div>
-              <ul><li>1頭の単勝と複勝をセットで買います。</li></ul>
-            </div>
-          </div>
-          <div class="ticket-item" id="ticket-item-wakuren" onclick="chooseTicket('枠連', 'wakuren', this)">
-            <div class="ticket-btn-wrap"><div class="ticket-btn">枠連</div></div>
-            <div class="ticket-desc">
-              <div class="desc-title">1着・2着になる枠番号の組合せ</div>
-              <ul><li>順不同。枠番号で指定します。</li></ul>
-            </div>
-          </div>
-          <div class="ticket-item" id="ticket-item-umaren" onclick="chooseTicket('馬連', 'umaren', this)">
-            <div class="ticket-btn-wrap"><div class="ticket-btn">馬連</div></div>
-            <div class="ticket-desc">
-              <div class="desc-title">1着・2着になる馬番号の組合せ</div>
-              <ul><li>順不同で2頭を当てます。</li></ul>
-            </div>
-          </div>
-          <div class="ticket-item" id="ticket-item-umatan" onclick="chooseTicket('馬単', 'umatan', this)">
-            <div class="ticket-btn-wrap"><div class="ticket-btn">馬単</div></div>
-            <div class="ticket-desc">
-              <div class="desc-title">1着・2着になる馬番号を着順通りに</div>
-              <ul><li>着順もピタリと当てる必要があります。</li></ul>
-            </div>
-          </div>
-          <div class="ticket-item" id="ticket-item-wide" onclick="chooseTicket('ワイド', 'wide', this)">
-            <div class="ticket-btn-wrap"><div class="ticket-btn">ワイド</div></div>
-            <div class="ticket-desc">
-              <div class="desc-title">3着までに入る2頭の組合せ</div>
-              <ul><li>選んだ2頭が両方とも3着以内に入れば的中です。</li></ul>
-            </div>
-          </div>
-          <div class="ticket-item" id="ticket-item-sanrenfuku" onclick="chooseTicket('3連複', 'sanrenfuku', this)">
-            <div class="ticket-btn-wrap"><div class="ticket-btn">3連複</div></div>
-            <div class="ticket-desc">
-              <div class="desc-title">1・2・3着となる馬の組合せ</div>
-              <ul><li>順不同で3頭を当てます。</li></ul>
-            </div>
-          </div>
-          <div class="ticket-item" id="ticket-item-sanrentan" onclick="chooseTicket('3連単', 'sanrentan', this)">
-            <div class="ticket-btn-wrap"><div class="ticket-btn">3連単</div></div>
-            <div class="ticket-desc">
-              <div class="desc-title">1・2・3着となる馬を着順通りに</div>
-              <ul><li>最も難易度が高く、配当も大きくなりやすい馬券です。</li></ul>
-            </div>
-          </div>
-        </div>
-        <button class="action-btn" onclick="confirmTicketSelection()" style="margin-top: 18px;">次へ（買い目選択へ） &#10140;</button>
-        <!-- カート追加中（カートに中身がある）場合のみ表示されるボタン -->
-        <button class="action-btn secondary" onclick="goToStep(3)" id="btnReturnCartFrom1" style="margin-top: 8px; display: none;">カート確認に戻る</button>
-      </div>
-
-      <!-- 画面②：買い目・金額シミュレーション -->
-      <div id="view-2" class="view-page">
-        <div id="method-tab-group" class="tab-group"></div>
-        <div id="selection-area"></div>
-
-        <div class="amount-select-container">
-          <div class="amount-select-title">1点あたりの購入金額:</div>
-          <div class="amount-select-row">
-            <select id="amountNum" onchange="calculateCurrentSelection()">
-              <option value="1" selected>1</option><option value="2">2</option>
-              <option value="3">3</option><option value="4">4</option>
-              <option value="5">5</option><option value="10">10</option>
-              <option value="20">20</option><option value="30">30</option>
-            </select>
-            <select id="amountUnit" onchange="calculateCurrentSelection()">
-              <option value="100" selected>百円</option>
-              <option value="1000">千円</option>
-              <option value="10000">万円</option>
-            </select>
-          </div>
-        </div>
-
-        <div style="margin-top:12px; text-align:right; font-weight:bold; font-size:14px;">
-          選択中: <span id="currPoints" style="color:#2e7d32;">0</span> 点 
-          (<span id="currTotal" style="color:#2e7d32;">0</span> 円)
-        </div>
-
-        <button class="action-btn" onclick="addToCart()">この馬券をカートに追加</button>
-        <button class="action-btn secondary" onclick="goToStep(1)" style="margin-top:6px;">券種選びに戻る</button>
-        <!-- カート追加中（カートに中身がある）場合のみ表示されるボタン -->
-        <button class="action-btn secondary" onclick="goToStep(3)" id="btnReturnCartFrom2" style="margin-top:6px; display: none;">カート確認に戻る</button>
-      </div>
-
-      <!-- 画面③：購入確認・カート -->
-      <div id="view-3" class="view-page">
-        <p style="font-size:13px; color:#666; margin-top:0;">現在カートに入っている馬券です：</p>
-        <div id="cartList"></div>
+      <div class="hero-section">
+        <h1 class="hero-title">馬券購入シミュレーター</h1>
+        <p class="hero-subtitle">
+          競馬場に行く前に、買いたい馬券の組み合わせと<br>
+          合計金額をスマホでサクッと計算！<br>
+          マークシートの正しい塗り方も一目でわかります。
+        </p>
         
-        <div style="margin-top:20px; border-top:1px solid #ccc; padding-top:15px;">
-          <button class="action-btn primary-blue" onclick="goToStep(1)">＋ さらに別の馬券を追加する</button>
-          <button class="action-btn secondary" onclick="goToStep(4)" id="btnGoStep4" style="margin-top:8px;">マークシートの書き方を見る &#10140;</button>
+        <div class="hero-badges">
+          <span class="hero-badge">無料・登録不要</span>
+          <span class="hero-badge">全券種対応</span>
+        </div>
+
+        <button class="start-btn" onclick="startApp()">シミュレーションを始める</button>
+      </div>
+
+      <h2 style="font-size: 16px; color: #333; margin-bottom: 20px;">💡 使い方は簡単 3ステップ</h2>
+      
+      <div class="feature-section">
+        <div class="feature-card">
+          <div class="feature-number">1</div>
+          <div class="feature-text">
+            <h3>券種と買い目を選ぶ</h3>
+            <p>単勝、馬連、3連単など好きな馬券を選び、買いたい馬の番号をタップします。（ボックスやフォーメーションにも対応！）</p>
+          </div>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-number">2</div>
+          <div class="feature-text">
+            <h3>金額を計算してカートへ</h3>
+            <p>1点あたりの金額を入力すると、買い目点数と合計金額を自動計算。そのままカートに追加して複数の馬券をまとめられます。</p>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-number">3</div>
+          <div class="feature-text">
+            <h3>マークシートの書き方をチェック</h3>
+            <p>カートに入れた馬券の内容に合わせて、どの色のマークカードにどうやって記入すればいいかをズバリ指示してくれます。</p>
+          </div>
         </div>
       </div>
 
-      <!-- 画面④：マークシート記入ガイド（実践ガイド ＆ 初心者向けマニュアル） -->
-      <div id="view-4" class="view-page">
-        <p style="font-size:13px; color:#666; margin-top:0; margin-bottom: 15px;">競馬場の発券機で購入する際、以下のマークシートを参照してください：</p>
-        
-        <!-- カート連動の実践ガイドエリア -->
-        <div id="sheetGuideList"></div>
-
-        <!-- 初心者向けマークシート全種類マニュアル -->
-        <div class="manual-section" id="manualSection">
-          <!-- JSで中身を生成します -->
-        </div>
-
-        <button class="action-btn secondary" onclick="goToStep(3)" style="margin-top:15px;">カート確認に戻る</button>
+      <div class="footer-text">
+        © 2026 馬券購入シミュレーター<br>
+        ※実際の勝馬投票券の購入はJRAの公式サイトや競馬場等で行ってください。
       </div>
 
     </div>
   </div>
 
-  <!-- 下部固定の金額バー -->
-  <div class="bottom-bar" id="bottomBar" style="display:none;">
-    <div style="font-size:12px;">合計点数: <span id="grandPoints">0</span> 点</div>
-    <div class="bottom-total">総合計: <span id="grandTotal">0</span> 円</div>
+  <!-- ==============================================
+       2. メインアプリ（シミュレーション画面）
+       ============================================== -->
+  <div class="app-wrapper" id="appContainer">
+    <div class="container">
+      <div class="header-bar" id="pageTitle">
+        <span class="header-back-btn" onclick="returnToTop()">◀ トップへ</span>
+        ① 馬券の種類を選択
+      </div>
+      <div class="step-indicator">
+        <div class="step-item active" id="step-1">1.券種選択</div>
+        <div class="step-item" id="step-2">2.買い目選択</div>
+        <div class="step-item" id="step-3">3.購入確認</div>
+        <div class="step-item" id="step-4">4.マークシート</div>
+      </div>
+
+      <div class="main-card">
+        
+        <!-- 画面①：馬券種選択 -->
+        <div id="view-1" class="view-page active">
+          <p style="font-size: 13px; color: #666; margin-top:0; margin-bottom: 12px;">購入したい馬券の種類を選択してください：</p>
+          <div class="ticket-list">
+            <div class="ticket-item" id="ticket-item-tansho" onclick="chooseTicket('単勝', 'tansho', this)">
+              <div class="ticket-btn-wrap"><div class="ticket-btn">単勝</div></div>
+              <div class="ticket-desc">
+                <div class="desc-title">1着になる馬を当てる馬券</div>
+                <ul><li>最もシンプルな馬券。1着になる馬を番号で指定します。</li></ul>
+              </div>
+            </div>
+            <div class="ticket-item" id="ticket-item-fukusho" onclick="chooseTicket('複勝', 'fukusho', this)">
+              <div class="ticket-btn-wrap"><div class="ticket-btn">複勝</div></div>
+              <div class="ticket-desc">
+                <div class="desc-title">3着までに入る馬を当てる馬券</div>
+                <ul><li>出走頭数によって3着（または2着）までに入れば的中です。</li></ul>
+              </div>
+            </div>
+            <div class="ticket-item" id="ticket-item-ouen" onclick="chooseTicket('応援馬券', 'ouen', this)">
+              <div class="ticket-btn-wrap"><div class="ticket-btn">応援馬券</div></div>
+              <div class="ticket-desc">
+                <div class="desc-title">「単勝」と「複勝」を同時に購入</div>
+                <ul><li>1頭の単勝と複勝をセットで買います。</li></ul>
+              </div>
+            </div>
+            <div class="ticket-item" id="ticket-item-wakuren" onclick="chooseTicket('枠連', 'wakuren', this)">
+              <div class="ticket-btn-wrap"><div class="ticket-btn">枠連</div></div>
+              <div class="ticket-desc">
+                <div class="desc-title">1着・2着になる枠番号の組合せ</div>
+                <ul><li>順不同。枠番号で指定します。</li></ul>
+              </div>
+            </div>
+            <div class="ticket-item" id="ticket-item-umaren" onclick="chooseTicket('馬連', 'umaren', this)">
+              <div class="ticket-btn-wrap"><div class="ticket-btn">馬連</div></div>
+              <div class="ticket-desc">
+                <div class="desc-title">1着・2着になる馬番号の組合せ</div>
+                <ul><li>順不同で2頭を当てます。</li></ul>
+              </div>
+            </div>
+            <div class="ticket-item" id="ticket-item-umatan" onclick="chooseTicket('馬単', 'umatan', this)">
+              <div class="ticket-btn-wrap"><div class="ticket-btn">馬単</div></div>
+              <div class="ticket-desc">
+                <div class="desc-title">1着・2着になる馬番号を着順通りに</div>
+                <ul><li>着順もピタリと当てる必要があります。</li></ul>
+              </div>
+            </div>
+            <div class="ticket-item" id="ticket-item-wide" onclick="chooseTicket('ワイド', 'wide', this)">
+              <div class="ticket-btn-wrap"><div class="ticket-btn">ワイド</div></div>
+              <div class="ticket-desc">
+                <div class="desc-title">3着までに入る2頭の組合せ</div>
+                <ul><li>選んだ2頭が両方とも3着以内に入れば的中です。</li></ul>
+              </div>
+            </div>
+            <div class="ticket-item" id="ticket-item-sanrenfuku" onclick="chooseTicket('3連複', 'sanrenfuku', this)">
+              <div class="ticket-btn-wrap"><div class="ticket-btn">3連複</div></div>
+              <div class="ticket-desc">
+                <div class="desc-title">1・2・3着となる馬の組合せ</div>
+                <ul><li>順不同で3頭を当てます。</li></ul>
+              </div>
+            </div>
+            <div class="ticket-item" id="ticket-item-sanrentan" onclick="chooseTicket('3連単', 'sanrentan', this)">
+              <div class="ticket-btn-wrap"><div class="ticket-btn">3連単</div></div>
+              <div class="ticket-desc">
+                <div class="desc-title">1・2・3着となる馬を着順通りに</div>
+                <ul><li>最も難易度が高く、配当も大きくなりやすい馬券です。</li></ul>
+              </div>
+            </div>
+          </div>
+          <button class="action-btn" onclick="confirmTicketSelection()" style="margin-top: 18px;">次へ（買い目選択へ） &#10140;</button>
+          <!-- カート追加中（カートに中身がある）場合のみ表示されるボタン -->
+          <button class="action-btn secondary" onclick="goToStep(3)" id="btnReturnCartFrom1" style="margin-top: 8px; display: none;">カート確認に戻る</button>
+        </div>
+
+        <!-- 画面②：買い目・金額シミュレーション -->
+        <div id="view-2" class="view-page">
+          <div id="method-tab-group" class="tab-group"></div>
+          <div id="selection-area"></div>
+
+          <div class="amount-select-container">
+            <div class="amount-select-title">1点あたりの購入金額:</div>
+            <div class="amount-select-row">
+              <select id="amountNum" onchange="calculateCurrentSelection()">
+                <option value="1" selected>1</option><option value="2">2</option>
+                <option value="3">3</option><option value="4">4</option>
+                <option value="5">5</option><option value="10">10</option>
+                <option value="20">20</option><option value="30">30</option>
+              </select>
+              <select id="amountUnit" onchange="calculateCurrentSelection()">
+                <option value="100" selected>百円</option>
+                <option value="1000">千円</option>
+                <option value="10000">万円</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-top:12px; text-align:right; font-weight:bold; font-size:14px;">
+            選択中: <span id="currPoints" style="color:#2e7d32;">0</span> 点 
+            (<span id="currTotal" style="color:#2e7d32;">0</span> 円)
+          </div>
+
+          <button class="action-btn" onclick="addToCart()">この馬券をカートに追加</button>
+          <button class="action-btn secondary" onclick="goToStep(1)" style="margin-top:6px;">券種選びに戻る</button>
+          <!-- カート追加中（カートに中身がある）場合のみ表示されるボタン -->
+          <button class="action-btn secondary" onclick="goToStep(3)" id="btnReturnCartFrom2" style="margin-top:6px; display: none;">カート確認に戻る</button>
+        </div>
+
+        <!-- 画面③：購入確認・カート -->
+        <div id="view-3" class="view-page">
+          <p style="font-size:13px; color:#666; margin-top:0;">現在カートに入っている馬券です：</p>
+          <div id="cartList"></div>
+          
+          <div style="margin-top:20px; border-top:1px solid #ccc; padding-top:15px;">
+            <button class="action-btn primary-blue" onclick="goToStep(1)">＋ さらに別の馬券を追加する</button>
+            <button class="action-btn secondary" onclick="goToStep(4)" id="btnGoStep4" style="margin-top:8px;">マークシートの書き方を見る &#10140;</button>
+          </div>
+        </div>
+
+        <!-- 画面④：マークシート記入ガイド -->
+        <div id="view-4" class="view-page">
+          <p style="font-size:13px; color:#666; margin-top:0; margin-bottom: 15px;">競馬場の発券機で購入する際、以下のマークシートを参照してください：</p>
+          
+          <div id="sheetGuideList"></div>
+          <div class="manual-section" id="manualSection"></div>
+
+          <button class="action-btn secondary" onclick="goToStep(3)" style="margin-top:15px;">カート確認に戻る</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 下部固定の金額バー -->
+    <div class="bottom-bar" id="bottomBar" style="display:none;">
+      <div style="font-size:12px;">合計点数: <span id="grandPoints">0</span> 点</div>
+      <div class="bottom-total">総合計: <span id="grandTotal">0</span> 円</div>
+    </div>
   </div>
 
+  <!-- ==============================================
+       3. JavaScript (機能ロジック)
+       ============================================== -->
   <script>
     var pendingTicketName = '';
     var pendingTicketCode = '';
@@ -530,14 +472,26 @@
     var normalBuyCount = 1;
     var cart = [];
 
-    // --- マークシート画像URLのマッピング ---
     var sheetImages = {
-      green: './green.png',        // 基本用（緑）
-      blueFuku: './blueFuku.png',  // 連複流し（青）
-      blueTan: './blueTan.png',    // 連単流し（青）
-      redBox: './redBox.png',      // ボックス（赤）
-      redForm: './redForm.png'     // フォーメーション（赤）
+      green: './green.png',
+      blueFuku: './blueFuku.png',
+      blueTan: './blueTan.png',
+      redBox: './redBox.png',
+      redForm: './redForm.png'
     };
+
+    // --- 【新規追加】トップページとの切り替え ---
+    function startApp() {
+      document.getElementById('landingPage').style.display = 'none';
+      document.getElementById('appContainer').style.display = 'block';
+      goToStep(1);
+    }
+
+    function returnToTop() {
+      document.getElementById('appContainer').style.display = 'none';
+      document.getElementById('landingPage').style.display = 'block';
+      document.getElementById('bottomBar').style.display = 'none';
+    }
 
     // --- 画面遷移コントロール ---
     function goToStep(stepNum) {
@@ -559,16 +513,15 @@
         "③ 購入予定馬券の確認（カート）",
         "④ マークシート記載ガイド"
       ];
-      document.getElementById("pageTitle").innerText = titles[stepNum - 1];
+      // タイトルの横に「◀ トップへ」ボタンを追加して更新
+      document.getElementById("pageTitle").innerHTML = '<span class="header-back-btn" onclick="returnToTop()">◀ トップへ</span>' + titles[stepNum - 1];
       
       document.getElementById("bottomBar").style.display = (stepNum >= 2) ? 'flex' : 'none';
 
-      // --- 追加：カートに商品がある場合のみ「カートに戻る」ボタンを表示 ---
       var btnReturn1 = document.getElementById('btnReturnCartFrom1');
       var btnReturn2 = document.getElementById('btnReturnCartFrom2');
       if (btnReturn1) btnReturn1.style.display = (cart.length > 0) ? 'block' : 'none';
       if (btnReturn2) btnReturn2.style.display = (cart.length > 0) ? 'block' : 'none';
-      // -------------------------------------------------------------
 
       if (stepNum === 3) renderCart();
       if (stepNum === 4) renderSheetGuide();
@@ -581,17 +534,12 @@
       pendingTicketName = name;
       pendingTicketCode = code;
       var items = document.querySelectorAll('.ticket-item');
-      for (var i = 0; i < items.length; i++) {
-        items[i].classList.remove('selected');
-      }
+      for (var i = 0; i < items.length; i++) items[i].classList.remove('selected');
       element.classList.add('selected');
     }
 
     function confirmTicketSelection() {
-      if (!pendingTicketCode) {
-        alert("購入したい馬券の種類を選択してください。");
-        return;
-      }
+      if (!pendingTicketCode) { alert("購入したい馬券の種類を選択してください。"); return; }
       selectTicket(pendingTicketName, pendingTicketCode);
     }
 
@@ -608,19 +556,15 @@
     function setupStep2UI() {
       var tabGroup = document.getElementById("method-tab-group");
       tabGroup.innerHTML = '';
-
       var methods = [];
       if (selectedTicketCode === 'tansho' || selectedTicketCode === 'fukusho' || selectedTicketCode === 'ouen') {
         methods = [{ id: 'normal', name: '通常' }];
       } else {
         methods = [
-          { id: 'normal', name: '通常' },
-          { id: 'box', name: 'ボックス' },
-          { id: 'formation', name: 'フォーメーション' },
-          { id: 'nagashi', name: '流し' }
+          { id: 'normal', name: '通常' }, { id: 'box', name: 'ボックス' },
+          { id: 'formation', name: 'フォーメーション' }, { id: 'nagashi', name: '流し' }
         ];
       }
-
       methods.forEach(function(m, idx) {
         var btn = document.createElement('button');
         btn.className = 'tab-btn ' + (idx === 0 ? 'active' : '');
@@ -628,7 +572,6 @@
         btn.onclick = function() { switchMethod(m.id); };
         tabGroup.appendChild(btn);
       });
-
       renderSelectionRows();
     }
 
@@ -637,11 +580,8 @@
       var btns = document.querySelectorAll('#method-tab-group .tab-btn');
       var mName = getMethodName(method);
       for (var i = 0; i < btns.length; i++) {
-        if (btns[i].innerText === mName) {
-          btns[i].classList.add('active');
-        } else {
-          btns[i].classList.remove('active');
-        }
+        if (btns[i].innerText === mName) btns[i].classList.add('active');
+        else btns[i].classList.remove('active');
       }
       renderSelectionRows();
     }
@@ -661,37 +601,25 @@
       return ['1着・1頭目'];
     }
 
-    // --- グレーアウト（選択不可）状態を更新する関数 ---
     function updateDisabledState(blockNum, labelsLength) {
       if (selectedTicketCode === 'wakuren') return; 
-
       var selectedPerRow = [];
       for (var idx = 1; idx <= labelsLength; idx++) {
         var grid = document.getElementById('norm-' + blockNum + '-' + idx);
         var sel = grid ? grid.querySelectorAll('.mark-box.selected') : [];
-        if (sel.length > 0) {
-          selectedPerRow[idx] = parseInt(sel[0].dataset.num);
-        } else {
-          selectedPerRow[idx] = null;
-        }
+        if (sel.length > 0) selectedPerRow[idx] = parseInt(sel[0].dataset.num);
+        else selectedPerRow[idx] = null;
       }
-
       for (var idx = 1; idx <= labelsLength; idx++) {
         var grid = document.getElementById('norm-' + blockNum + '-' + idx);
         if (!grid) continue;
         var boxes = grid.querySelectorAll('.mark-box');
-        
         for (var i = 0; i < boxes.length; i++) {
           var num = parseInt(boxes[i].dataset.num);
           var isDisabled = false;
-          
           for (var otherIdx = 1; otherIdx <= labelsLength; otherIdx++) {
-            if (otherIdx !== idx && selectedPerRow[otherIdx] === num) {
-              isDisabled = true;
-              break;
-            }
+            if (otherIdx !== idx && selectedPerRow[otherIdx] === num) { isDisabled = true; break; }
           }
-          
           if (isDisabled) {
             boxes[i].classList.add('disabled');
             boxes[i].classList.remove('selected');
@@ -705,19 +633,15 @@
     function renderSelectionRows() {
       var area = document.getElementById("selection-area");
       area.innerHTML = '';
-
       var maxNum = (selectedTicketCode === 'wakuren') ? 8 : 18;
       var labels = getLabelsForTicket(selectedTicketCode, currentMethod);
 
       if (currentMethod === 'normal') {
         var countBar = document.createElement('div');
         countBar.style.cssText = "margin-bottom:12px; background:#e8f5e9; padding:10px; border-radius:6px; border:1px solid #a5d6a7; display:flex; align-items:center; justify-content:space-between;";
-        
         var selectHtml = '<span style="font-size:13px; font-weight:bold; color:#1b5e20;">購入する数（買い目数）:</span>' +
                          '<select id="normalCountSelect" onchange="changeNormalCount(this.value)" style="padding:6px; font-size:14px; font-weight:bold; border-radius:4px; border:1px solid #ccc; background:#fff;">';
-        for (var n = 1; n <= 10; n++) {
-          selectHtml += '<option value="' + n + '" ' + ((n === normalBuyCount) ? 'selected' : '') + '>' + n + ' 点分</option>';
-        }
+        for (var n = 1; n <= 10; n++) selectHtml += '<option value="' + n + '" ' + ((n === normalBuyCount) ? 'selected' : '') + '>' + n + ' 点分</option>';
         selectHtml += '</select>';
         countBar.innerHTML = selectHtml;
         area.appendChild(countBar);
@@ -727,27 +651,18 @@
             var block = document.createElement('div');
             block.style.cssText = "margin-bottom:15px; border:1px solid #2e7d32; border-radius:8px; padding:10px; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.05);";
             block.innerHTML = '<div style="font-weight:bold; font-size:13px; color:#1b5e20; border-bottom:1px solid #c8e6c9; padding-bottom:4px; margin-bottom:8px;">買い目 ' + blockNum + '</div>';
-
             labels.forEach(function(lbl, idx) {
               var row = document.createElement('div');
               row.className = 'row-block';
-              row.style.borderBottom = 'none';
-              row.style.paddingBottom = '4px';
-              row.style.marginBottom = '8px';
+              row.style.borderBottom = 'none'; row.style.paddingBottom = '4px'; row.style.marginBottom = '8px';
               row.innerHTML = '<div class="row-title" style="font-size:12px;"><span>' + lbl + '</span></div>';
-
               var grid = document.createElement('div');
-              grid.className = 'number-grid';
-              grid.id = 'norm-' + blockNum + '-' + (idx + 1);
-
+              grid.className = 'number-grid'; grid.id = 'norm-' + blockNum + '-' + (idx + 1);
               for (var i = 1; i <= maxNum; i++) {
                 var box = document.createElement('div');
-                box.className = 'mark-box';
-                box.innerText = i;
-                box.dataset.num = i;
+                box.className = 'mark-box'; box.innerText = i; box.dataset.num = i;
                 box.onclick = function() {
                   if (this.classList.contains('disabled')) return;
-                  
                   if (selectedTicketCode === 'tansho' || selectedTicketCode === 'fukusho' || selectedTicketCode === 'ouen') {
                     this.classList.toggle('selected');
                   } else {
@@ -756,76 +671,50 @@
                     for (var j = 0; j < boxes.length; j++) boxes[j].classList.remove('selected');
                     if (!isSelected) this.classList.add('selected');
                   }
-                  
                   if (currentMethod === 'normal') updateDisabledState(blockNum, labels.length);
                   calculateCurrentSelection();
                 };
                 grid.appendChild(box);
               }
-              row.appendChild(grid);
-              block.appendChild(row);
+              row.appendChild(grid); block.appendChild(row);
             });
             area.appendChild(block);
           })(b);
         }
-
       } else if (currentMethod === 'box') {
         var block = document.createElement('div');
         block.className = 'row-block';
         block.innerHTML = '<div class="row-title"><span>選択馬・枠</span></div>';
-
         var grid = document.createElement('div');
-        grid.className = 'number-grid';
-        grid.id = 'grid-box';
-
+        grid.className = 'number-grid'; grid.id = 'grid-box';
         for (var i = 1; i <= maxNum; i++) {
           var box = document.createElement('div');
-          box.className = 'mark-box';
-          box.innerText = i;
-          box.dataset.num = i;
-          box.onclick = function() {
-            this.classList.toggle('selected');
-            calculateCurrentSelection();
-          };
+          box.className = 'mark-box'; box.innerText = i; box.dataset.num = i;
+          box.onclick = function() { this.classList.toggle('selected'); calculateCurrentSelection(); };
           grid.appendChild(box);
         }
-        block.appendChild(grid);
-        area.appendChild(block);
-
+        block.appendChild(grid); area.appendChild(block);
       } else if (currentMethod === 'formation' || currentMethod === 'nagashi') {
         labels.forEach(function(lbl, idx) {
           var block = document.createElement('div');
           block.className = 'row-block';
           block.innerHTML = '<div class="row-title"><span>' + lbl + '</span></div>';
-
           var grid = document.createElement('div');
-          grid.className = 'number-grid';
-          grid.id = 'grid-form-' + (idx + 1);
-
+          grid.className = 'number-grid'; grid.id = 'grid-form-' + (idx + 1);
           for (var i = 1; i <= maxNum; i++) {
             var box = document.createElement('div');
-            box.className = 'mark-box';
-            box.innerText = i;
-            box.dataset.num = i;
-            box.onclick = function() {
-              this.classList.toggle('selected');
-              calculateCurrentSelection();
-            };
+            box.className = 'mark-box'; box.innerText = i; box.dataset.num = i;
+            box.onclick = function() { this.classList.toggle('selected'); calculateCurrentSelection(); };
             grid.appendChild(box);
           }
-          block.appendChild(grid);
-          area.appendChild(block);
+          block.appendChild(grid); area.appendChild(block);
         });
       }
       calculateCurrentSelection();
     }
 
-    function changeNormalCount(val) {
-      normalBuyCount = parseInt(val) || 1;
-      renderSelectionRows();
-    }
+    function changeNormalCount(val) { normalBuyCount = parseInt(val) || 1; renderSelectionRows(); }
 
-    // --- 計算・点数ロジック ---
     function calculateCurrentSelection() {
       var points = 0;
       var num = parseInt(document.getElementById("amountNum").value) || 1;
@@ -837,13 +726,9 @@
         for (var b = 1; b <= normalBuyCount; b++) {
           if (selectedTicketCode === 'tansho' || selectedTicketCode === 'fukusho' || selectedTicketCode === 'ouen') {
             var grid = document.getElementById('norm-' + b + '-1');
-            if (grid) {
-              var sel = grid.querySelectorAll('.mark-box.selected');
-              points += sel.length;
-            }
+            if (grid) { var sel = grid.querySelectorAll('.mark-box.selected'); points += sel.length; }
           } else {
-            var isValid = true;
-            var selectedNums = [];
+            var isValid = true; var selectedNums = [];
             for (var idx = 1; idx <= labels.length; idx++) {
               var grid = document.getElementById('norm-' + b + '-' + idx);
               if (!grid) { isValid = false; break; }
@@ -856,9 +741,7 @@
                 var unique = [];
                 for(var k=0; k<selectedNums.length; k++) if(unique.indexOf(selectedNums[k])===-1) unique.push(selectedNums[k]);
                 if (unique.length === selectedNums.length) points++;
-              } else {
-                points++;
-              }
+              } else { points++; }
             }
           }
         }
@@ -866,23 +749,14 @@
         var grid = document.getElementById('grid-box');
         var selBoxes = grid ? grid.querySelectorAll('.mark-box.selected') : [];
         var n = selBoxes.length;
-        if (selectedTicketCode === 'wakuren' || selectedTicketCode === 'umaren' || selectedTicketCode === 'wide') {
-          points = (n * (n - 1)) / 2;
-        } else if (selectedTicketCode === 'umatan') {
-          points = n * (n - 1);
-        } else if (selectedTicketCode === 'sanrenfuku') {
-          points = (n * (n - 1) * (n - 2)) / 6;
-        } else if (selectedTicketCode === 'sanrentan') {
-          points = n * (n - 1) * (n - 2);
-        }
+        if (selectedTicketCode === 'wakuren' || selectedTicketCode === 'umaren' || selectedTicketCode === 'wide') { points = (n * (n - 1)) / 2; }
+        else if (selectedTicketCode === 'umatan') { points = n * (n - 1); }
+        else if (selectedTicketCode === 'sanrenfuku') { points = (n * (n - 1) * (n - 2)) / 6; }
+        else if (selectedTicketCode === 'sanrentan') { points = n * (n - 1) * (n - 2); }
       } else if (currentMethod === 'formation' || currentMethod === 'nagashi') {
-        var r1 = getSelectedNums('grid-form-1');
-        var r2 = getSelectedNums('grid-form-2');
-        var r3 = getSelectedNums('grid-form-3');
-
-        if (selectedTicketCode === 'tansho' || selectedTicketCode === 'fukusho' || selectedTicketCode === 'ouen') {
-          points = r1.length;
-        } else if (selectedTicketCode === 'wakuren' || selectedTicketCode === 'umaren' || selectedTicketCode === 'wide' || selectedTicketCode === 'umatan') {
+        var r1 = getSelectedNums('grid-form-1'), r2 = getSelectedNums('grid-form-2'), r3 = getSelectedNums('grid-form-3');
+        if (selectedTicketCode === 'tansho' || selectedTicketCode === 'fukusho' || selectedTicketCode === 'ouen') { points = r1.length; }
+        else if (selectedTicketCode === 'wakuren' || selectedTicketCode === 'umaren' || selectedTicketCode === 'wide' || selectedTicketCode === 'umatan') {
           for (var i=0; i<r1.length; i++) {
             for (var j=0; j<r2.length; j++) {
               if (r1[i] === r2[j] && selectedTicketCode !== 'wakuren') continue;
@@ -914,7 +788,6 @@
       
       var amountUnitSelect = document.getElementById("amountUnit");
       var unitText = amountUnitSelect.options[amountUnitSelect.selectedIndex].text;
-
       return { points: points, totalAmount: totalAmount, unit: unit, amountNum: num, amountUnitText: unitText };
     }
 
@@ -927,26 +800,20 @@
       return nums;
     }
 
-    // --- 【新規追加】生データの抽出関数（マークシート指定用） ---
     function getRawSelections() {
-      var method = currentMethod;
-      var code = selectedTicketCode;
-      var labels = getLabelsForTicket(code, method);
-
+      var method = currentMethod, code = selectedTicketCode, labels = getLabelsForTicket(code, method);
       if (method === 'normal') {
         var selections = [];
         for (var b = 1; b <= normalBuyCount; b++) {
           if (code === 'tansho' || code === 'fukusho' || code === 'ouen') {
             var grid = document.getElementById('norm-' + b + '-1');
             if (grid) {
-              var sel = grid.querySelectorAll('.mark-box.selected');
-              var arr = [];
+              var sel = grid.querySelectorAll('.mark-box.selected'), arr = [];
               for(var i=0; i<sel.length; i++) arr.push(parseInt(sel[i].dataset.num));
               if(arr.length > 0) selections.push(arr);
             }
           } else {
-            var arr = [];
-            var isValid = true;
+            var arr = [], isValid = true;
             for (var idx = 1; idx <= labels.length; idx++) {
               var grid = document.getElementById('norm-' + b + '-' + idx);
               if (!grid) { isValid = false; break; }
@@ -961,24 +828,15 @@
       } else if (method === 'box') {
         return getSelectedNums('grid-box');
       } else if (method === 'formation' || method === 'nagashi') {
-        return [
-          getSelectedNums('grid-form-1'),
-          getSelectedNums('grid-form-2'),
-          getSelectedNums('grid-form-3')
-        ];
+        return [ getSelectedNums('grid-form-1'), getSelectedNums('grid-form-2'), getSelectedNums('grid-form-3') ];
       }
       return [];
     }
 
-    // 文字列の組み合わせ生成
     function generateCombosStrings() {
-      var res = [];
-      var limit = 1000;
+      var res = [], limit = 1000;
       function add(s) { if (res.length < limit && res.indexOf(s) === -1) res.push(s); }
-      var code = selectedTicketCode;
-      var method = currentMethod;
-      var labels = getLabelsForTicket(code, method);
-
+      var code = selectedTicketCode, method = currentMethod, labels = getLabelsForTicket(code, method);
       if (method === 'normal') {
         for (var b = 1; b <= normalBuyCount; b++) {
           if (code === 'tansho' || code === 'fukusho' || code === 'ouen') {
@@ -988,8 +846,7 @@
               for(var i = 0; i < sel.length; i++) add(sel[i].dataset.num);
             }
           } else {
-            var arr = [];
-            var isValid = true;
+            var arr = [], isValid = true;
             for (var idx = 1; idx <= labels.length; idx++) {
               var grid = document.getElementById('norm-' + b + '-' + idx);
               if (!grid) { isValid = false; break; }
@@ -997,17 +854,13 @@
               if (sel.length !== 1) { isValid = false; break; }
               arr.push(parseInt(sel[0].dataset.num));
             }
-            if (isValid) {
-              var sep = (code === 'umatan' || code === 'sanrentan') ? '→' : '-';
-              add(arr.join(sep));
-            }
+            if (isValid) add(arr.join((code === 'umatan' || code === 'sanrentan') ? '→' : '-'));
           }
         }
       } else if (method === 'box') {
         var gridBox = document.getElementById('grid-box');
         if(!gridBox) return res;
-        var selBoxes = gridBox.querySelectorAll('.mark-box.selected');
-        var r = [];
+        var selBoxes = gridBox.querySelectorAll('.mark-box.selected'), r = [];
         for(var i = 0; i < selBoxes.length; i++) r.push(parseInt(selBoxes[i].dataset.num));
         r.sort(function(a,b){ return a - b; });
         if (code === 'wakuren' || code === 'umaren' || code === 'wide' || code === 'umatan') {
@@ -1025,16 +878,13 @@
               for(var k=0; k<r.length; k++) {
                 if(i === k || j === k) continue;
                 if (code === 'sanrenfuku' && (r[i] > r[j] || r[j] > r[k])) continue;
-                var sep = (code === 'sanrentan') ? '→' : '-';
-                add(r[i] + sep + r[j] + sep + r[k]);
+                add(r[i] + ((code === 'sanrentan') ? '→' : '-') + r[j] + ((code === 'sanrentan') ? '→' : '-') + r[k]);
               }
             }
           }
         }
       } else if (method === 'formation' || method === 'nagashi') {
-        var r1 = getSelectedNums('grid-form-1');
-        var r2 = getSelectedNums('grid-form-2');
-        var r3 = getSelectedNums('grid-form-3');
+        var r1 = getSelectedNums('grid-form-1'), r2 = getSelectedNums('grid-form-2'), r3 = getSelectedNums('grid-form-3');
         if (code === 'wakuren' || code === 'umaren' || code === 'wide' || code === 'umatan') {
           for(var i=0; i<r1.length; i++) {
             for(var j=0; j<r2.length; j++) {
@@ -1050,8 +900,7 @@
               for(var k=0; k<r3.length; k++) {
                 if(r1[i] === r3[k] || r2[j] === r3[k]) continue;
                 if (code === 'sanrenfuku' && (r1[i] > r2[j] || r2[j] > r3[k])) continue;
-                var sep = (code === 'sanrentan') ? '→' : '-';
-                add(r1[i] + sep + r2[j] + sep + r3[k]);
+                add(r1[i] + ((code === 'sanrentan') ? '→' : '-') + r2[j] + ((code === 'sanrentan') ? '→' : '-') + r3[k]);
               }
             }
           }
@@ -1062,108 +911,41 @@
 
     function addToCart() {
       var calc = calculateCurrentSelection();
-      if (calc.points === 0) {
-        alert("買い目が正しく選択されていません。");
-        return;
-      }
-      var comboStrings = generateCombosStrings();
-      
+      if (calc.points === 0) { alert("買い目が正しく選択されていません。"); return; }
       cart.push({
         id: new Date().getTime(),
-        ticketName: selectedTicketName,
-        ticketCode: selectedTicketCode,
-        methodName: getMethodName(currentMethod),
-        methodCode: currentMethod,
-        points: calc.points,
-        unit: calc.unit,
-        amountNum: calc.amountNum,
-        amountUnitText: calc.amountUnitText,
-        totalAmount: calc.totalAmount,
-        combos: comboStrings,
-        rawSelections: getRawSelections() // 追加：マークシート記載指示用の生データ
+        ticketName: selectedTicketName, ticketCode: selectedTicketCode,
+        methodName: getMethodName(currentMethod), methodCode: currentMethod,
+        points: calc.points, unit: calc.unit,
+        amountNum: calc.amountNum, amountUnitText: calc.amountUnitText, totalAmount: calc.totalAmount,
+        combos: generateCombosStrings(), rawSelections: getRawSelections()
       });
       goToStep(3);
     }
 
-    // --- 画面③：カート表示 ---
     function renderCart() {
-      var cartList = document.getElementById("cartList");
+      var cartList = document.getElementById("cartList"), btnGoStep4 = document.getElementById("btnGoStep4");
       cartList.innerHTML = '';
-      var btnGoStep4 = document.getElementById("btnGoStep4");
-
       if (cart.length === 0) {
         var emptyMsg = document.createElement('p');
-        emptyMsg.style.textAlign = 'center';
-        emptyMsg.style.color = '#888';
-        emptyMsg.textContent = 'カートに馬券がありません。';
+        emptyMsg.style.textAlign = 'center'; emptyMsg.style.color = '#888'; emptyMsg.textContent = 'カートに馬券がありません。';
         cartList.appendChild(emptyMsg);
         btnGoStep4.style.display = 'none';
       } else {
         btnGoStep4.style.display = 'block';
-        
         cart.forEach(function(item, idx) {
-          var div = document.createElement('div');
-          div.className = 'cart-item';
-          
-          var titleDiv = document.createElement('div');
-          titleDiv.className = 'cart-item-title';
-          titleDiv.textContent = (idx + 1) + '. ' + item.ticketName + ' (' + item.methodName + ')';
-          
-          var detailDiv = document.createElement('div');
-          detailDiv.className = 'cart-item-detail';
-          detailDiv.textContent = '点数: ' + item.points + '点 / 1点: ' + item.amountNum + item.amountUnitText + ' (' + item.unit.toLocaleString() + '円)';
-          
-          var subtotalDiv = document.createElement('div');
-          subtotalDiv.style.fontWeight = 'bold';
-          subtotalDiv.style.marginTop = '2px';
-          subtotalDiv.textContent = '小計: ' + item.totalAmount.toLocaleString() + '円';
-          
-          var delBtn = document.createElement('button');
-          delBtn.className = 'cart-item-delete';
-          delBtn.textContent = '削除';
-          delBtn.onclick = function() { removeFromCart(item.id); };
-          
-          var accDiv = document.createElement('div');
-          accDiv.style.fontSize = '12px';
-          accDiv.style.marginTop = '8px';
-          accDiv.style.borderTop = '1px solid #ccc';
-          accDiv.style.paddingTop = '4px';
-          
-          var toggleDiv = document.createElement('div');
-          toggleDiv.style.cursor = 'pointer';
-          toggleDiv.style.color = '#1565c0';
-          toggleDiv.style.fontWeight = 'bold';
-          toggleDiv.onclick = function() { toggleCombo(item.id); };
-          
-          var iconSpan = document.createElement('span');
-          iconSpan.id = 'icon-' + item.id;
-          iconSpan.textContent = '▼';
-          var toggleText = document.createTextNode(' 買い目の詳細を確認');
-          
-          toggleDiv.appendChild(iconSpan);
-          toggleDiv.appendChild(toggleText);
-          
-          var comboContent = document.createElement('div');
-          comboContent.id = 'combo-' + item.id;
-          comboContent.style.display = 'none';
-          comboContent.style.marginTop = '4px';
-          comboContent.style.padding = '6px';
-          comboContent.style.background = '#e0e0e0';
-          comboContent.style.borderRadius = '4px';
-          comboContent.style.maxHeight = '80px';
-          comboContent.style.overflowY = 'auto';
-          comboContent.style.wordBreak = 'break-all';
-          comboContent.textContent = item.combos.join(', ');
-          
-          accDiv.appendChild(toggleDiv);
-          accDiv.appendChild(comboContent);
-          
-          div.appendChild(titleDiv);
-          div.appendChild(detailDiv);
-          div.appendChild(subtotalDiv);
-          div.appendChild(delBtn);
-          div.appendChild(accDiv);
-          
+          var div = document.createElement('div'); div.className = 'cart-item';
+          var titleDiv = document.createElement('div'); titleDiv.className = 'cart-item-title'; titleDiv.textContent = (idx + 1) + '. ' + item.ticketName + ' (' + item.methodName + ')';
+          var detailDiv = document.createElement('div'); detailDiv.className = 'cart-item-detail'; detailDiv.textContent = '点数: ' + item.points + '点 / 1点: ' + item.amountNum + item.amountUnitText + ' (' + item.unit.toLocaleString() + '円)';
+          var subtotalDiv = document.createElement('div'); subtotalDiv.style.fontWeight = 'bold'; subtotalDiv.style.marginTop = '2px'; subtotalDiv.textContent = '小計: ' + item.totalAmount.toLocaleString() + '円';
+          var delBtn = document.createElement('button'); delBtn.className = 'cart-item-delete'; delBtn.textContent = '削除'; delBtn.onclick = function() { removeFromCart(item.id); };
+          var accDiv = document.createElement('div'); accDiv.style.fontSize = '12px'; accDiv.style.marginTop = '8px'; accDiv.style.borderTop = '1px solid #ccc'; accDiv.style.paddingTop = '4px';
+          var toggleDiv = document.createElement('div'); toggleDiv.style.cursor = 'pointer'; toggleDiv.style.color = '#1565c0'; toggleDiv.style.fontWeight = 'bold'; toggleDiv.onclick = function() { toggleCombo(item.id); };
+          var iconSpan = document.createElement('span'); iconSpan.id = 'icon-' + item.id; iconSpan.textContent = '▼';
+          toggleDiv.appendChild(iconSpan); toggleDiv.appendChild(document.createTextNode(' 買い目の詳細を確認'));
+          var comboContent = document.createElement('div'); comboContent.id = 'combo-' + item.id; comboContent.style.display = 'none'; comboContent.style.marginTop = '4px'; comboContent.style.padding = '6px'; comboContent.style.background = '#e0e0e0'; comboContent.style.borderRadius = '4px'; comboContent.style.maxHeight = '80px'; comboContent.style.overflowY = 'auto'; comboContent.style.wordBreak = 'break-all'; comboContent.textContent = item.combos.join(', ');
+          accDiv.appendChild(toggleDiv); accDiv.appendChild(comboContent);
+          div.appendChild(titleDiv); div.appendChild(detailDiv); div.appendChild(subtotalDiv); div.appendChild(delBtn); div.appendChild(accDiv);
           cartList.appendChild(div);
         });
       }
@@ -1171,79 +953,39 @@
     }
 
     function toggleCombo(id) {
-      var el = document.getElementById('combo-' + id);
-      var icon = document.getElementById('icon-' + id);
-      if (el.style.display === 'none') {
-        el.style.display = 'block';
-        icon.textContent = '▲';
-      } else {
-        el.style.display = 'none';
-        icon.textContent = '▼';
-      }
+      var el = document.getElementById('combo-' + id), icon = document.getElementById('icon-' + id);
+      if (el.style.display === 'none') { el.style.display = 'block'; icon.textContent = '▲'; }
+      else { el.style.display = 'none'; icon.textContent = '▼'; }
     }
 
     function removeFromCart(id) {
       var newCart = [];
-      for (var i = 0; i < cart.length; i++) {
-        if (cart[i].id !== id) newCart.push(cart[i]);
-      }
+      for (var i = 0; i < cart.length; i++) if (cart[i].id !== id) newCart.push(cart[i]);
       cart = newCart;
       renderCart();
     }
 
-    // --- 画面④：マークシートガイド（カート連動の具体指示 ＆ アコーディオンマニュアル） ---
     function renderSheetGuide() {
-      // 1. カート連動の実践ガイド
-      var list = document.getElementById("sheetGuideList");
-      list.innerHTML = '';
-
+      var list = document.getElementById("sheetGuideList"); list.innerHTML = '';
       if (cart.length > 0) {
         var cartHeading = document.createElement('div');
         cartHeading.innerHTML = '<div style="font-weight:bold; font-size:14px; color:#1b5e20; margin-bottom:8px;">🛒 カート内馬券のマークシート指定</div>';
         list.appendChild(cartHeading);
-
         cart.forEach(function(item, idx) {
-          var cardType = '基本用（緑）';
-          var badgeClass = 'badge-green';
-          var imgUrl = sheetImages.green;
+          var cardType = '基本用（緑）', badgeClass = 'badge-green', imgUrl = sheetImages.green;
+          if (item.methodCode === 'formation') { cardType = 'フォーメーション（赤）'; badgeClass = 'badge-red'; imgUrl = sheetImages.redForm; }
+          else if (item.methodCode === 'nagashi') {
+            if (item.ticketCode === 'sanrenfuku') { cardType = '連複流し（青）'; badgeClass = 'badge-blue'; imgUrl = sheetImages.blueFuku; }
+            else { cardType = '連単流し（青）'; badgeClass = 'badge-blue'; imgUrl = sheetImages.blueTan; }
+          } else if (item.methodCode === 'box') { cardType = 'ボックス（赤）'; badgeClass = 'badge-red'; imgUrl = sheetImages.redBox; }
 
-          if (item.methodCode === 'formation') {
-            cardType = 'フォーメーション（赤）';
-            badgeClass = 'badge-red';
-            imgUrl = sheetImages.redForm;
-          } else if (item.methodCode === 'nagashi') {
-            if (item.ticketCode === 'sanrenfuku') {
-              cardType = '連複流し（青）';
-              badgeClass = 'badge-blue';
-              imgUrl = sheetImages.blueFuku;
-            } else {
-              cardType = '連単流し（青）';
-              badgeClass = 'badge-blue';
-              imgUrl = sheetImages.blueTan;
-            }
-          } else if (item.methodCode === 'box') {
-            cardType = 'ボックス（赤）';
-            badgeClass = 'badge-red';
-            imgUrl = sheetImages.redBox;
-          }
-
-          var cardDiv = document.createElement('div');
-          cardDiv.className = 'sheet-guide-card';
-
-          // 具体的な塗り方の指示テキストを生成
-          var markDetailsHtml = '';
-          markDetailsHtml += '<li style="margin-bottom:6px;"><b>式別:</b> 「' + item.ticketName + '」を塗りつぶす</li>';
-          
+          var markDetailsHtml = '<li style="margin-bottom:6px;"><b>式別:</b> 「' + item.ticketName + '」を塗りつぶす</li>';
           if (item.methodCode === 'normal') {
             markDetailsHtml += '<li style="margin-bottom:6px;"><b>馬番/枠番:</b> 各行ごとに以下を塗りつぶす<br>';
             item.rawSelections.forEach(function(sel, i) {
               if (item.ticketCode === 'tansho' || item.ticketCode === 'fukusho' || item.ticketCode === 'ouen') {
-                sel.forEach(function(num) {
-                  markDetailsHtml += ' ・「' + num + '」<br>';
-                });
-              } else {
-                markDetailsHtml += ' ・「' + sel.join((item.ticketCode === 'umatan' || item.ticketCode === 'sanrentan') ? '」→「' : '」-「') + '」<br>';
-              }
+                sel.forEach(function(num) { markDetailsHtml += ' ・「' + num + '」<br>'; });
+              } else { markDetailsHtml += ' ・「' + sel.join((item.ticketCode === 'umatan' || item.ticketCode === 'sanrentan') ? '」→「' : '」-「') + '」<br>'; }
             });
             markDetailsHtml += '</li>';
           } else if (item.methodCode === 'box') {
@@ -1261,39 +1003,28 @@
             if (item.rawSelections[2] && item.rawSelections[2].length > 0) markDetailsHtml += ' ・相手/3頭目: 「' + item.rawSelections[2].join('」「') + '」<br>';
             markDetailsHtml += '</li>';
           }
-
           markDetailsHtml += '<li style="margin-bottom:6px;"><b>金額:</b> 「' + item.amountNum + '」と「' + item.amountUnitText + '」を塗りつぶす</li>';
 
-          // カードの見た目を構築
+          var cardDiv = document.createElement('div'); cardDiv.className = 'sheet-guide-card';
           cardDiv.innerHTML = 
             '<span class="sheet-type-badge ' + badgeClass + '">' + (idx + 1) + '. ' + item.ticketName + ' (' + item.methodName + ') ➔ ' + cardType + '</span>' +
-            
             '<div style="background-color: #f1f8e9; border: 1px solid #c5e1a5; padding: 12px; border-radius: 6px; font-size: 13px; color: #333; margin-bottom: 12px; margin-top: 8px;">' +
               '<div style="font-weight:bold; color:#2e7d32; margin-bottom:8px; border-bottom:1px dashed #a5d6a7; padding-bottom:4px;">✏️ このマークシートの塗り方</div>' +
               '<ul style="margin:0; padding-left:24px;">' + markDetailsHtml + '</ul>' +
             '</div>' +
-
-            '<div class="sheet-img-wrap">' +
-              '<img src="' + imgUrl + '" class="sheet-img" alt="マークシート画像">' +
-            '</div>';
-          
+            '<div class="sheet-img-wrap"><img src="' + imgUrl + '" class="sheet-img" alt="マークシート画像"></div>';
           list.appendChild(cardDiv);
         });
       }
 
-      // 2. 初心者向けマークシート全種類マニュアル（カート状態によって表示変更）
-      var manualSection = document.getElementById("manualSection");
-      manualSection.innerHTML = '';
-
-      var manualHtml = '';
+      var manualSection = document.getElementById("manualSection"), manualHtml = '';
       var manualData = [
-        { title: '1. 基本用マークカード（緑）', badge: 'badge-green', url: sheetImages.green, desc: '「通常」や、複数の単勝・複勝を買う際に使用する最も基本的なカードです。迷ったらまずはこれを使います。' },
-        { title: '2. ボックス専用マークカード（赤）', badge: 'badge-red', url: sheetImages.redBox, desc: '馬連や3連複などで「選んだ馬のすべての組み合わせ」をまとめて買う（ボックス買い）場合に使用します。' },
-        { title: '3. フォーメーション専用マークカード（赤）', badge: 'badge-red', url: sheetImages.redForm, desc: '1着・2着・3着にそれぞれ複数の馬を指定して、効率よく買い目を絞り込む（フォーメーション買い）場合に使用します。' },
-        { title: '4. 連複流し専用マークカード（青）', badge: 'badge-blue', url: sheetImages.blueFuku, desc: '軸馬を1頭（または2頭）決め、相手となる複数の馬へ流して買う（枠連・馬連・ワイド・3連複の流し）場合に使用します。' },
-        { title: '5. 連単流し専用マークカード（青）', badge: 'badge-blue', url: sheetImages.blueTan, desc: '馬単や3連単で軸馬を決め、着順を指定して流し買い・マルチ買いを行う場合に使用します。' }
+        { title: '1. 基本用マークカード（緑）', badge: 'badge-green', url: sheetImages.green, desc: '「通常」や、複数の単勝・複勝を買う際に使用する最も基本的なカードです。' },
+        { title: '2. ボックス専用マークカード（赤）', badge: 'badge-red', url: sheetImages.redBox, desc: '「選んだ馬のすべての組み合わせ」をまとめて買う（ボックス買い）場合に使用します。' },
+        { title: '3. フォーメーション専用マークカード（赤）', badge: 'badge-red', url: sheetImages.redForm, desc: '1着・2着・3着にそれぞれ複数の馬を指定して買い目を絞り込む場合に使用します。' },
+        { title: '4. 連複流し専用マークカード（青）', badge: 'badge-blue', url: sheetImages.blueFuku, desc: '軸馬を決め、相手となる複数の馬へ流して買う（枠連・馬連・ワイド・3連複）場合に使用します。' },
+        { title: '5. 連単流し専用マークカード（青）', badge: 'badge-blue', url: sheetImages.blueTan, desc: '馬単や3連単で軸馬を決め、着順を指定して流し買いを行う場合に使用します。' }
       ];
-
       manualData.forEach(function(m) {
         manualHtml += 
           '<div class="sheet-guide-card">' +
@@ -1304,14 +1035,12 @@
       });
 
       if (cart.length > 0) {
-        // カートに馬券がある場合：マニュアルは折りたたんでスッキリ見せる
         manualSection.innerHTML = 
           '<details style="background:#fff; border:1px solid #ddd; border-radius:6px; padding:10px; margin-top:20px;">' +
             '<summary style="font-weight:bold; cursor:pointer; color:#1565c0; font-size: 14px;">📖 その他すべてのマークカード一覧を見る</summary>' +
             '<div style="margin-top:15px;">' + manualHtml + '</div>' +
           '</details>';
       } else {
-        // カートが空の場合：初めからすべて表示して使い方を見せる
         manualSection.innerHTML = 
           '<div style="font-weight:bold; font-size:14px; color:#1b5e20; margin-bottom:8px;">📖 マークシート種類別完全マニュアル</div>' +
           '<p style="font-size:12px; color:#555; margin-bottom:12px;">購入方法や目的に応じて使い分ける5種類のマークカード一覧です。</p>' +
@@ -1319,20 +1048,10 @@
       }
     }
 
-    // --- 共通：合計金額更新 ---
     function updateGrandTotal(currPts, currAmt) {
-      var gPoints = 0;
-      var gTotal = 0;
-      for (var i = 0; i < cart.length; i++) {
-        gPoints += cart[i].points;
-        gTotal += cart[i].totalAmount;
-      }
-      
-      if (document.getElementById("view-2").classList.contains('active')) {
-        gPoints += (currPts || 0);
-        gTotal += (currAmt || 0);
-      }
-      
+      var gPoints = 0, gTotal = 0;
+      for (var i = 0; i < cart.length; i++) { gPoints += cart[i].points; gTotal += cart[i].totalAmount; }
+      if (document.getElementById("view-2").classList.contains('active')) { gPoints += (currPts || 0); gTotal += (currAmt || 0); }
       document.getElementById("grandPoints").innerText = gPoints;
       document.getElementById("grandTotal").innerText = gTotal.toLocaleString();
     }
