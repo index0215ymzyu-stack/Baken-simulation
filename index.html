@@ -342,7 +342,7 @@
     .sheet-canvas-wrap { border: 1px solid #ccc; border-radius: 4px; overflow: hidden; background: #fafafa; text-align: center; padding: 4px; }
     .sheet-canvas { width: 100%; height: auto; display: block; }
     .manual-section { margin-top: 25px; padding-top: 15px; }
-    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background-color: #111; color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.3); z-index: 100; }
+    .bottom-bar { fixed; bottom: 0; left: 0; right: 0; background-color: #111; color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.3); z-index: 100; }
     .bottom-total { font-size: 18px; font-weight: bold; color: #ffcc00; }
   </style>
 </head>
@@ -377,7 +377,7 @@
           <span class="hero-badge">全券種対応</span>
         </div>
 
-        <button class="start-btn" onclick="switchView('app')">シミュレーションを始める</button>
+        <button class="start-btn" onclick="switchView('app'); goToStep(1);">シミュレーションを始める</button>
       </div>
 
       <h2 style="font-size: 16px; color: #333; margin-bottom: 20px;">💡 使い方は簡単 3ステップ</h2>
@@ -537,7 +537,7 @@
           
           <div style="margin-top:20px; border-top:1px solid #ccc; padding-top:15px;">
             <button class="action-btn" onclick="goToStep(4)" id="btnGoStep4" style="margin-bottom:8px;">マークシートの書き方を見る &#10140;</button>
-            <button class="action-btn primary-blue" onclick="goToStep(1)">＋ さらに別の馬券を追加する</button>
+            <button class="action-btn primary-blue" onclick="switchView('app'); goToStep(1);">＋ さらに別の馬券を追加する</button>
           </div>
         </div>
 
@@ -635,6 +635,7 @@
         window.scrollTo(0, 0);
       } else if (viewName === 'app') {
         app.classList.add('active');
+        // ※ ここにあった強制 goToStep(1) を削除しました
       } else if (viewName === 'privacy' || viewName === 'terms' || viewName === 'faq' || viewName === 'contact') {
         subPage.classList.add('active');
         renderSubPage(viewName);
@@ -987,6 +988,39 @@
       return nums;
     }
 
+    function getRawSelections() {
+      var method = currentMethod, code = selectedTicketCode, labels = getLabelsForTicket(code, method);
+      if (method === 'normal') {
+        var selections = [];
+        for (var b = 1; b <= normalBuyCount; b++) {
+          if (code === 'tansho' || code === 'fukusho' || code === 'ouen') {
+            var grid = document.getElementById('norm-' + b + '-1');
+            if (grid) {
+              var sel = grid.querySelectorAll('.mark-box.selected'), arr = [];
+              for(var i=0; i<sel.length; i++) arr.push(parseInt(sel[i].dataset.num));
+              if(arr.length > 0) selections.push(arr);
+            }
+          } else {
+            var arr = [], isValid = true;
+            for (var idx = 1; idx <= labels.length; idx++) {
+              var grid = document.getElementById('norm-' + b + '-' + idx);
+              if (!grid) { isValid = false; break; }
+              var sel = grid.querySelectorAll('.mark-box.selected');
+              if (sel.length !== 1) { isValid = false; break; }
+              arr.push(parseInt(sel[0].dataset.num));
+            }
+            if (isValid) selections.push(arr);
+          }
+        }
+        return selections;
+      } else if (method === 'box') {
+        return getSelectedNums('grid-box');
+      } else if (method === 'formation' || method === 'nagashi') {
+        return [ getSelectedNums('grid-form-1'), getSelectedNums('grid-form-2'), getSelectedNums('grid-form-3') ];
+      }
+      return [];
+    }
+
     function generateCombosStrings() {
       var res = [], limit = 1000;
       function add(s) { if (res.length < limit && res.indexOf(s) === -1) res.push(s); }
@@ -1074,7 +1108,7 @@
         amountNum: calc.amountNum, amountUnitText: calc.amountUnitText, totalAmount: calc.totalAmount,
         combos: generateCombosStrings(), rawSelections: getRawSelections()
       });
-      // 修正ポイント: アプリビューを表示した上で、ステップ3（カート画面）へ確実に遷移
+      // 修正: アプリ画面に切り替えたうえで、ステップ3（カート画面）へ確実に移動する
       switchView('app');
       goToStep(3);
     }
@@ -1197,7 +1231,7 @@
             if (item.rawSelections[2] && item.rawSelections[2].length > 0) markDetailsHtml += ' 🔴 相手/3頭目: 「' + item.rawSelections[2].join('」「') + '」<br>';
             markDetailsHtml += '</li>';
           }
-          markDetailsHtml += '<li style="margin-bottom:6px;"><b>金額:</b> 「' + item.amountNum + '」と・「' + item.amountUnitText + '」を塗りつぶす</li>';
+          markDetailsHtml += '<li style="margin-bottom:6px;"><b>金額:</b> 「' + item.amountNum + '」と「' + item.amountUnitText + '」を塗りつぶす</li>';
 
           var cardDiv = document.createElement('div'); cardDiv.className = 'sheet-guide-card';
           cardDiv.innerHTML = 
