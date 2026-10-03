@@ -449,6 +449,8 @@
           </div>
         </div>
         <button class="action-btn" onclick="confirmTicketSelection()" style="margin-top: 18px;">次へ（買い目選択へ） &#10140;</button>
+        <!-- カート追加中（カートに中身がある）場合のみ表示されるボタン -->
+        <button class="action-btn secondary" onclick="goToStep(3)" id="btnReturnCartFrom1" style="margin-top: 8px; display: none;">カート確認に戻る</button>
       </div>
 
       <!-- 画面②：買い目・金額シミュレーション -->
@@ -480,6 +482,8 @@
 
         <button class="action-btn" onclick="addToCart()">この馬券をカートに追加</button>
         <button class="action-btn secondary" onclick="goToStep(1)" style="margin-top:6px;">券種選びに戻る</button>
+        <!-- カート追加中（カートに中身がある）場合のみ表示されるボタン -->
+        <button class="action-btn secondary" onclick="goToStep(3)" id="btnReturnCartFrom2" style="margin-top:6px; display: none;">カート確認に戻る</button>
       </div>
 
       <!-- 画面③：購入確認・カート -->
@@ -558,6 +562,13 @@
       document.getElementById("pageTitle").innerText = titles[stepNum - 1];
       
       document.getElementById("bottomBar").style.display = (stepNum >= 2) ? 'flex' : 'none';
+
+      // --- 追加：カートに商品がある場合のみ「カートに戻る」ボタンを表示 ---
+      var btnReturn1 = document.getElementById('btnReturnCartFrom1');
+      var btnReturn2 = document.getElementById('btnReturnCartFrom2');
+      if (btnReturn1) btnReturn1.style.display = (cart.length > 0) ? 'block' : 'none';
+      if (btnReturn2) btnReturn2.style.display = (cart.length > 0) ? 'block' : 'none';
+      // -------------------------------------------------------------
 
       if (stepNum === 3) renderCart();
       if (stepNum === 4) renderSheetGuide();
