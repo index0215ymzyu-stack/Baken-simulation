@@ -635,7 +635,6 @@
         window.scrollTo(0, 0);
       } else if (viewName === 'app') {
         app.classList.add('active');
-        goToStep(1);
       } else if (viewName === 'privacy' || viewName === 'terms' || viewName === 'faq' || viewName === 'contact') {
         subPage.classList.add('active');
         renderSubPage(viewName);
@@ -1075,6 +1074,7 @@
         amountNum: calc.amountNum, amountUnitText: calc.amountUnitText, totalAmount: calc.totalAmount,
         combos: generateCombosStrings(), rawSelections: getRawSelections()
       });
+      // 修正ポイント: アプリビューを表示した上で、ステップ3（カート画面）へ確実に遷移
       switchView('app');
       goToStep(3);
     }
@@ -1137,19 +1137,9 @@
         canvas.height = img.naturalHeight || 800;
         var ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0);
-
-        // 視覚的ガイド用の塗りつぶしエフェクト（シミュレーションとして赤枠または赤丸などを動的に重ねる）
-        // ここではユーザーがパッと見てどこが対象かわかるよう、テキストおよびハイライトオーバーレイを描画
-        ctx.fillStyle = "rgba(229, 57, 53, 0.4)";
-        ctx.strokeStyle = "#c62828";
-        ctx.lineWidth = 4;
-
-        // サンプルとしてマーク位置に視覚的な印を合成するロジック（ベース画像の座標系に合わせて調整可能）
-        // 画像がロードできない場合やプレースホルダー用に対応
         callback(canvas);
       };
       img.onerror = function() {
-        // 画像がない場合のフォールバック（プレースホルダーキャンバス生成）
         var canvas = document.createElement('canvas');
         canvas.width = 600;
         canvas.height = 400;
@@ -1207,7 +1197,7 @@
             if (item.rawSelections[2] && item.rawSelections[2].length > 0) markDetailsHtml += ' 🔴 相手/3頭目: 「' + item.rawSelections[2].join('」「') + '」<br>';
             markDetailsHtml += '</li>';
           }
-          markDetailsHtml += '<li style="margin-bottom:6px;"><b>金額:</b> 「' + item.amountNum + '」と「' + item.amountUnitText + '」を塗りつぶす</li>';
+          markDetailsHtml += '<li style="margin-bottom:6px;"><b>金額:</b> 「' + item.amountNum + '」と・「' + item.amountUnitText + '」を塗りつぶす</li>';
 
           var cardDiv = document.createElement('div'); cardDiv.className = 'sheet-guide-card';
           cardDiv.innerHTML = 
@@ -1221,7 +1211,6 @@
           
           list.appendChild(cardDiv);
 
-          // Canvasを描画して挿入
           generateMarkSheetCanvas(item, function(canvas) {
             canvas.className = 'sheet-canvas';
             canvas.id = 'canvas-elem-' + item.id;
@@ -1265,7 +1254,6 @@
       }
     }
 
-    // --- マークシート画像ダウンロード処理 ---
     function downloadMarkSheet(itemId, fileNamePrefix) {
       var canvas = document.getElementById('canvas-elem-' + itemId);
       if (!canvas) {
