@@ -18,18 +18,26 @@
     }
 
     /* ==========================================
-       トップページ（ランディングページ）用のスタイル
+       共通のラッパー・コンテナ
        ========================================== */
-    .landing-wrapper {
+    .landing-wrapper, .app-wrapper, .sub-page-wrapper {
       padding: 12px;
       padding-top: 30px;
       flex: 1;
+      display: none; /* 初期状態は非表示 */
     }
-    .landing-container {
+    .landing-wrapper.active, .app-wrapper.active, .sub-page-wrapper.active {
+      display: block; /* アクティブな時だけ表示 */
+    }
+
+    .landing-container, .sub-page-container {
       max-width: 600px;
       margin: 0 auto;
-      text-align: center;
     }
+
+    /* ==========================================
+       トップページ（ランディングページ）用のスタイル
+       ========================================== */
     .hero-section {
       background-color: #fff;
       padding: 40px 20px;
@@ -37,6 +45,7 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.05);
       margin-bottom: 25px;
       border-top: 8px solid #1b5e20;
+      text-align: center;
     }
     .hero-title {
       font-size: 26px;
@@ -131,6 +140,54 @@
     }
 
     /* ==========================================
+       サブページ（規約・ポリシー等）用のスタイル
+       ========================================== */
+    .sub-page-card {
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .sub-page-title {
+      font-size: 20px;
+      color: #1b5e20;
+      font-weight: bold;
+      margin-top: 0;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e8f5e9;
+      padding-bottom: 10px;
+    }
+    .sub-page-content h3 {
+      font-size: 15px;
+      color: #2e7d32;
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+    .sub-page-content p {
+      font-size: 13px;
+      color: #444;
+      line-height: 1.7;
+      margin-top: 0;
+    }
+    .back-to-home-btn {
+      display: inline-block;
+      background-color: #757575;
+      color: white;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: bold;
+      margin-top: 10px;
+      cursor: pointer;
+      border: none;
+    }
+    .back-to-home-btn:hover {
+      background-color: #616161;
+    }
+
+    /* ==========================================
        黒い縁取りのフッター（下部広告・リンクエリア）
        ========================================== */
     .site-footer {
@@ -145,7 +202,6 @@
       margin: 0 auto;
       text-align: center;
     }
-    /* 広告掲載スペース用フレーム（仮枠） */
     .ad-banner-box {
       background-color: #222;
       border: 1px dashed #555;
@@ -155,7 +211,6 @@
       border-radius: 4px;
       margin-bottom: 15px;
     }
-    /* フッターリンク集 */
     .footer-links {
       display: flex;
       justify-content: center;
@@ -167,6 +222,7 @@
     .footer-links a {
       color: #fff;
       text-decoration: none;
+      cursor: pointer;
     }
     .footer-links a:hover {
       text-decoration: underline;
@@ -179,11 +235,6 @@
     /* ==========================================
        メインアプリ用のスタイル
        ========================================== */
-    .app-wrapper {
-      padding: 12px;
-      display: none;
-      flex: 1;
-    }
     .container {
       max-width: 480px;
       margin: 0 auto;
@@ -278,19 +329,6 @@
     .manual-section { margin-top: 25px; padding-top: 15px; }
     .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background-color: #111; color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.3); z-index: 100; }
     .bottom-total { font-size: 18px; font-weight: bold; color: #ffcc00; }
-
-    /* モーダル（規約・ポリシー表示用） */
-    .modal-overlay {
-      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 15px;
-    }
-    .modal-card {
-      background: #fff; max-width: 500px; width: 100%; max-height: 80vh; border-radius: 8px;
-      display: flex; flexDirection: column; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    }
-    .modal-header { background: #1b5e20; color: white; padding: 12px 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-    .modal-close { background: none; border: none; color: white; font-size: 18px; cursor: pointer; }
-    .modal-body { padding: 15px; overflow-y: auto; font-size: 13px; line-height: 1.6; color: #444; }
   </style>
 </head>
 <body>
@@ -298,7 +336,7 @@
   <!-- ==============================================
        1. トップページ（ランディングページ）
        ============================================== -->
-  <div class="landing-wrapper" id="landingPage">
+  <div class="landing-wrapper active" id="landingPage">
     <div class="landing-container">
       
       <div class="hero-section">
@@ -314,7 +352,7 @@
           <span class="hero-badge">全券種対応</span>
         </div>
 
-        <button class="start-btn" onclick="startApp()">シミュレーションを始める</button>
+        <button class="start-btn" onclick="switchView('app')">シミュレーションを始める</button>
       </div>
 
       <h2 style="font-size: 16px; color: #333; margin-bottom: 20px;">💡 使い方は簡単 3ステップ</h2>
@@ -354,7 +392,7 @@
   <div class="app-wrapper" id="appContainer">
     <div class="container">
       <div class="header-bar" id="pageTitle">
-        <span class="header-back-btn" onclick="returnToTop()">◀ トップへ</span>
+        <span class="header-back-btn" onclick="switchView('landing')">◀ トップへ</span>
         ① 馬券の種類を選択
       </div>
       <div class="step-indicator">
@@ -502,21 +540,34 @@
   </div>
 
   <!-- ==============================================
-       3. 黒い縁取りのフッター（広告枠 ＆ 必須ページリンク）
+       3. 各種サブページ（プライバシーポリシー等）
+       ============================================== -->
+  <div class="sub-page-wrapper" id="subPageContainer">
+    <div class="sub-page-container">
+      <div class="sub-page-card">
+        <h2 class="sub-page-title" id="subPageTitle">タイトル</h2>
+        <div class="sub-page-content" id="subPageBody">
+          <!-- 中身はJavaScriptで切り替わります -->
+        </div>
+        <button class="back-to-home-btn" onclick="switchView('landing')">◀ トップページに戻る</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==============================================
+       4. 黒い縁取りのフッター（広告枠 ＆ 必須ページリンク）
        ============================================== -->
   <footer class="site-footer">
     <div class="footer-content">
-      <!-- 広告掲載用スペース（将来的にここにGoogle AdSenseなどのタグを貼れます） -->
       <div class="ad-banner-box">
         [ 広告掲載スペース ]
       </div>
 
-      <!-- 広告審査やサイト運営に必須のページリンク（モーダルでポップアップ表示） -->
       <div class="footer-links">
-        <a href="javascript:void(0)" onclick="openModal('privacy')">プライバシーポリシー</a>
-        <a href="javascript:void(0)" onclick="openModal('terms')">利用規約（免責事項）</a>
-        <a href="javascript:void(0)" onclick="openModal('faq')">よくある質問</a>
-        <a href="javascript:void(0)" onclick="openModal('contact')">お問い合わせ</a>
+        <a onclick="switchView('privacy')">プライバシーポリシー</a>
+        <a onclick="switchView('terms')">利用規約（免責事項）</a>
+        <a onclick="switchView('faq')">よくある質問</a>
+        <a onclick="switchView('contact')">お問い合わせ</a>
       </div>
 
       <div class="footer-copyright">
@@ -525,21 +576,6 @@
       </div>
     </div>
   </footer>
-
-  <!-- ==============================================
-       4. 各種ポリシー・規約のポップアップ（モーダル）
-       ============================================== -->
-  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
-    <div class="modal-card" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <span id="modalTitle">タイトル</span>
-        <button class="modal-close" onclick="closeModalDirect()">×</button>
-      </div>
-      <div class="modal-body" id="modalBody">
-        <!-- 中身はJavaScriptで切り替わります -->
-      </div>
-    </div>
-  </div>
 
   <!-- ==============================================
        5. JavaScript (機能ロジック)
@@ -561,16 +597,71 @@
       redForm: './redForm.png'
     };
 
-    function startApp() {
-      document.getElementById('landingPage').style.display = 'none';
-      document.getElementById('appContainer').style.display = 'block';
-      goToStep(1);
+    // --- 画面（ビュー）の切り替え管理 ---
+    function switchView(viewName) {
+      var landing = document.getElementById('landingPage');
+      var app = document.getElementById('appContainer');
+      var subPage = document.getElementById('subPageContainer');
+      var bottomBar = document.getElementById('bottomBar');
+
+      // すべて非課示にする
+      landing.classList.remove('active');
+      app.classList.remove('active');
+      subPage.classList.remove('active');
+      bottomBar.style.display = 'none';
+
+      if (viewName === 'landing') {
+        landing.classList.add('active');
+        window.scrollTo(0, 0);
+      } else if (viewName === 'app') {
+        app.classList.add('active');
+        goToStep(1);
+      } else if (viewName === 'privacy' || viewName === 'terms' || viewName === 'faq' || viewName === 'contact') {
+        subPage.classList.add('active');
+        renderSubPage(viewName);
+        window.scrollTo(0, 0);
+      }
     }
 
-    function returnToTop() {
-      document.getElementById('appContainer').style.display = 'none';
-      document.getElementById('landingPage').style.display = 'block';
-      document.getElementById('bottomBar').style.display = 'none';
+    // --- サブページの中身を生成する関数 ---
+    function renderSubPage(type) {
+      var titleEl = document.getElementById('subPageTitle');
+      var bodyEl = document.getElementById('subPageBody');
+
+      if (type === 'privacy') {
+        titleEl.innerText = "プライバシーポリシー";
+        bodyEl.innerHTML = `
+          <h3>個人情報の利用について</h3>
+          <p>当サイト（馬券購入シミュレーター）では、アクセス解析や広告配信のためにCookieを使用することがあります。Cookieによりブラウザを識別しますが、個人の身元を特定するものではありません。</p>
+          <h3>広告の配信について</h3>
+          <p>今後、第三者配信の広告サービス（Google AdSenseなど）を導入する予定です。広告配信事業者はユーザーの興味に応じた広告を表示するためにCookieを使用することがあります。</p>
+        `;
+      } else if (type === 'terms') {
+        titleEl.innerText = "利用規約（免責事項）";
+        bodyEl.innerHTML = `
+          <h3>サービスの利用について</h3>
+          <p>当サイトは、馬券の購入点数や金額を計算し、マークシートの記入例を案内するための無料シミュレーションツールです。実際の馬券購入を勧誘・強制するものではありません。</p>
+          <h3>免責事項</h3>
+          <p>当サイトに掲載されている情報を用いて行う一切の行為、および被った損害・損失について、運営者は一切の責任を負いません。馬券の購入はご自身の判断と責任において行ってください。</p>
+        `;
+      } else if (type === 'faq') {
+        titleEl.innerText = "よくある質問";
+        bodyEl.innerHTML = `
+          <h3>Q. 利用料金はかかりますか？</h3>
+          <p>A. すべて無料でご利用いただけます。</p>
+          <h3>Q. このサイトから直接馬券を買えますか？</h3>
+          <p>A. いいえ。当サイトは買い目のシミュレーションとマークシートの書き方を確認するためのツールです。実際の購入は競馬場やJRAの公式サービス等で行ってください。</p>
+          <h3>Q. どんな馬券に対応していますか？</h3>
+          <p>A. 単勝、複勝、応援馬券、枠連、馬連、馬単、ワイド、3連複、3連単の全9種類に対応しています。</p>
+        `;
+      } else if (type === 'contact') {
+        titleEl.innerText = "お問い合わせ";
+        bodyEl.innerHTML = `
+          <h3>ご連絡窓口</h3>
+          <p>不具合の報告やご要望などがございましたら、以下のメールアドレスまでご連絡ください。</p>
+          <p><b>メールアドレス:</b> support@example.com<br>（※スパム対策のため表記を変更している場合があります）</p>
+        `;
+      }
     }
 
     function goToStep(stepNum) {
@@ -592,7 +683,7 @@
         "③ 購入予定馬券の確認（カート）",
         "④ マークシート記載ガイド"
       ];
-      document.getElementById("pageTitle").innerHTML = '<span class="header-back-btn" onclick="returnToTop()">◀ トップへ</span>' + titles[stepNum - 1];
+      document.getElementById("pageTitle").innerHTML = '<span class="header-back-btn" onclick="switchView(\'landing\')">◀ トップへ</span>' + titles[stepNum - 1];
       
       document.getElementById("bottomBar").style.display = (stepNum >= 2) ? 'flex' : 'none';
 
@@ -605,36 +696,6 @@
       if (stepNum === 4) renderSheetGuide();
       
       window.scrollTo(0, 0);
-    }
-
-    // --- モーダル（規約ページなどの表示）制御 ---
-    function openModal(type) {
-      var title = document.getElementById("modalTitle");
-      var body = document.getElementById("modalBody");
-      var overlay = document.getElementById("modalOverlay");
-
-      if (type === 'privacy') {
-        title.innerText = "プライバシーポリシー";
-        body.innerHTML = '<h3>個人情報の利用について</h3><p>当サイト（馬券購入シミュレーター）では、アクセス解析や広告配信のためにCookieを使用することがあります。Cookieによりブラウザを識別しますが、個人の身元を特定するものではありません。</p><h3>広告の配信について</h3><p>今後、第三者配信の広告サービス（Google AdSenseなど）を導入する予定です。広告配信事業者はユーザーの興味に応じた広告を表示するためにCookieを使用することがあります。</p>';
-      } else if (type === 'terms') {
-        title.innerText = "利用規約（免責事項）";
-        body.innerHTML = '<h3>サービスの利用について</h3><p>当サイトは、馬券の購入点数や金額を計算し、マークシートの記入例を案内するための無料シミュレーションツールです。実際の馬券購入を勧誘・強制するものではありません。</p><h3>免責事項</h3><p>当サイトに掲載されている情報を用いて行う一切の行為、および被った損害・損失について、運営者は一切の責任を負いません。馬券の購入はご自身の判断と責任において行ってください。</p>';
-      } else if (type === 'faq') {
-        title.innerText = "よくある質問";
-        body.innerHTML = '<h4>Q. 利用料金はかかりますか？</h4><p>A. すべて無料でご利用いただけます。</p><h4>Q. このサイトから直接馬券を買えますか？</h4><p>A. いいえ。当サイトは買い目のシミュレーションとマークシートの書き方を確認するためのツールです。実際の購入は競馬場やJRAの公式サービス等で行ってください。</p><h4>Q. どんな馬券に対応していますか？</h4><p>A. 単勝、複勝、応援馬券、枠連、馬連、馬単、ワイド、3連複、3連単の全9種類に対応しています。</p>';
-      } else if (type === 'contact') {
-        title.innerText = "お問い合わせ";
-        body.innerHTML = '<p>不具合の報告やご要望などがございましたら、以下のメールアドレスまでご連絡ください。</p><p><b>メールアドレス:</b> support@example.com<br>（※スパム対策のため表記を変更している場合があります）</p>';
-      }
-
-      overlay.style.display = "flex";
-    }
-
-    function closeModal(e) {
-      document.getElementById("modalOverlay").style.display = "none";
-    }
-    function closeModalDirect() {
-      document.getElementById("modalOverlay").style.display = "none";
     }
 
     // --- 券種選択・買い目・カート等の既存ロジック ---
@@ -1003,9 +1064,9 @@
         } else if (code === 'sanrenfuku' || code === 'sanrentan') {
           for(var i=0; i<r1.length; i++) {
             for(var j=0; j<r2.length; j++) {
-              if(i === j) continue;
+              if(r1[i] === r2[j]) continue;
               for(var k=0; k<r3.length; k++) {
-                if(i === r3[k] || r2[j] === r3[k]) continue;
+                if(r1[i] === r3[k] || r2[j] === r3[k]) continue;
                 if (code === 'sanrenfuku' && (r1[i] > r2[j] || r2[j] > r3[k])) continue;
                 add(r1[i] + ((code === 'sanrentan') ? '→' : '-') + r2[j] + ((code === 'sanrentan') ? '→' : '-') + r3[k]);
               }
@@ -1027,6 +1088,7 @@
         amountNum: calc.amountNum, amountUnitText: calc.amountUnitText, totalAmount: calc.totalAmount,
         combos: generateCombosStrings(), rawSelections: getRawSelections()
       });
+      switchView('app');
       goToStep(3);
     }
 
