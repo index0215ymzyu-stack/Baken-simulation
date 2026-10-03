@@ -535,9 +535,9 @@
           <p style="font-size:13px; color:#666; margin-top:0;">現在カートに入っている馬券です：</p>
           <div id="cartList"></div>
           
-          <div style="margin-top:20px; border-top:1px solid #ccc; padding-top:15px;">
-            <button class="action-btn" onclick="goToStep(4)" id="btnGoStep4" style="margin-bottom:8px;">マークシートの書き方を見る &#10140;</button>
-            <button class="action-btn primary-blue" onclick="goToStep(1)">＋ さらに別の馬券を追加する</button>
+          <div style="margin-top:10px;">
+            <button class="action-btn" onclick="goToStep(4)" id="btnGoStep4" style="margin-bottom:6px;">マークシートの書き方を見る &#10140;</button>
+            <button class="action-btn primary-blue" onclick="goToStep(1)" style="margin-top:6px;">＋ さらに別の馬券を追加する</button>
           </div>
         </div>
 
@@ -1219,7 +1219,7 @@
           cardDiv.innerHTML = 
             '<span class="sheet-type-badge ' + badgeClass + '">' + (idx + 1) + '. ' + item.ticketName + ' (' + item.methodName + ') ➔ ' + cardType + '</span>' +
             '<div style="background-color: #f1f8e9; border: 1px solid #c5e1a5; padding: 12px; border-radius: 6px; font-size: 13px; color: #333; margin-bottom: 12px; margin-top: 8px;">' +
-              '<div style="font-weight:bold; color:#2e7d32; margin-bottom:8px; border-bottom:1px dashed #a5d6a7; padding-bottom:4px;">✏️ このマークシートの塗り方</div>' +
+              '<div style="font-weight:bold; color:#2e7d32; margin-bottom:8px; border-bottom:1px dashed #a5d6a7; padding-bottom:4px;">✏️️ このマークシートの塗り方</div>' +
               '<ul style="margin:0; padding-left:24px;">' + markDetailsHtml + '</ul>' +
             '</div>' +
             '<div class="sheet-img-wrap"><img src="' + imgUrl + '" class="sheet-img" alt="マークシート画像"></div>' +
