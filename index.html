@@ -18,16 +18,59 @@
     }
 
     /* ==========================================
-       共通のラッパー・コンテナ
+       共通のサイト共通ヘッダー（全ページ共通バナー）
+       ========================================== */
+    .site-header-banner {
+      background-color: #1b5e20;
+      color: white;
+      padding: 12px 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .site-logo {
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .site-logo:hover {
+      opacity: 0.9;
+    }
+    .header-home-link {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .header-home-link:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    /* ==========================================
+       各ビューのラッパー
        ========================================== */
     .landing-wrapper, .app-wrapper, .sub-page-wrapper {
       padding: 12px;
-      padding-top: 30px;
+      padding-top: 20px;
       flex: 1;
-      display: none; /* 初期状態は非表示 */
+      display: none;
     }
     .landing-wrapper.active, .app-wrapper.active, .sub-page-wrapper.active {
-      display: block; /* アクティブな時だけ表示 */
+      display: block;
     }
 
     .landing-container, .sub-page-container {
@@ -140,7 +183,7 @@
     }
 
     /* ==========================================
-       サブページ（規約・ポリシー等）用のスタイル
+       サブページ用のスタイル
        ========================================== */
     .sub-page-card {
       background-color: #fff;
@@ -170,25 +213,9 @@
       line-height: 1.7;
       margin-top: 0;
     }
-    .back-to-home-btn {
-      display: inline-block;
-      background-color: #757575;
-      color: white;
-      text-decoration: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: bold;
-      margin-top: 10px;
-      cursor: pointer;
-      border: none;
-    }
-    .back-to-home-btn:hover {
-      background-color: #616161;
-    }
 
     /* ==========================================
-       黒い縁取りのフッター（下部広告・リンクエリア）
+       黒い縁取りのフッター
        ========================================== */
     .site-footer {
       background-color: #111;
@@ -241,31 +268,17 @@
       padding-bottom: 80px;
     }
     .header-bar {
-      background-color: #1b5e20;
+      background-color: #2e7d32;
       color: white;
-      padding: 12px;
+      padding: 10px;
       text-align: center;
       border-radius: 8px 8px 0 0;
       font-weight: bold;
-      font-size: 16px;
-      position: relative;
-    }
-    .header-back-btn {
-      position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: white;
-      text-decoration: none;
-      font-size: 12px;
-      background: rgba(0,0,0,0.2);
-      padding: 4px 8px;
-      border-radius: 4px;
-      cursor: pointer;
+      font-size: 15px;
     }
     .step-indicator {
       display: flex;
-      background-color: #2e7d32;
+      background-color: #388e3c;
       color: #c8e6c9;
       font-size: 11px;
       text-align: center;
@@ -276,7 +289,7 @@
       border-right: 1px solid #1b5e20;
     }
     .step-item:last-child { border-right: none; }
-    .step-item.active { background-color: #43a047; color: #fff; font-weight: bold; }
+    .step-item.active { background-color: #4caf50; color: #fff; font-weight: bold; }
     .main-card {
       background-color: #fff;
       border-radius: 0 0 8px 8px;
@@ -332,6 +345,16 @@
   </style>
 </head>
 <body>
+
+  <!-- ==============================================
+       共通サイトヘッダーバナー（全ページ共通）
+       ============================================== -->
+  <header class="site-header-banner">
+    <a class="site-logo" onclick="switchView('landing')">
+      🏇 馬券シミュレーター
+    </a>
+    <a class="header-home-link" onclick="switchView('landing')">トップへ戻る</a>
+  </header>
 
   <!-- ==============================================
        1. トップページ（ランディングページ）
@@ -391,10 +414,7 @@
        ============================================== -->
   <div class="app-wrapper" id="appContainer">
     <div class="container">
-      <div class="header-bar" id="pageTitle">
-        <span class="header-back-btn" onclick="switchView('landing')">◀ トップへ</span>
-        ① 馬券の種類を選択
-      </div>
+      <div class="header-bar" id="pageTitle">① 馬券の種類を選択</div>
       <div class="step-indicator">
         <div class="step-item active" id="step-1">1.券種選択</div>
         <div class="step-item" id="step-2">2.買い目選択</div>
@@ -549,7 +569,6 @@
         <div class="sub-page-content" id="subPageBody">
           <!-- 中身はJavaScriptで切り替わります -->
         </div>
-        <button class="back-to-home-btn" onclick="switchView('landing')">◀ トップページに戻る</button>
       </div>
     </div>
   </div>
@@ -604,7 +623,6 @@
       var subPage = document.getElementById('subPageContainer');
       var bottomBar = document.getElementById('bottomBar');
 
-      // すべて非課示にする
       landing.classList.remove('active');
       app.classList.remove('active');
       subPage.classList.remove('active');
@@ -683,7 +701,8 @@
         "③ 購入予定馬券の確認（カート）",
         "④ マークシート記載ガイド"
       ];
-      document.getElementById("pageTitle").innerHTML = '<span class="header-back-btn" onclick="switchView(\'landing\')">◀ トップへ</span>' + titles[stepNum - 1];
+      // アプリ画面側の各ステップタイトルの上部からは「トップへボタン」を削除（全ページ共通ヘッダーがあるため不要に）
+      document.getElementById("pageTitle").innerText = titles[stepNum - 1];
       
       document.getElementById("bottomBar").style.display = (stepNum >= 2) ? 'flex' : 'none';
 
@@ -1064,9 +1083,9 @@
         } else if (code === 'sanrenfuku' || code === 'sanrentan') {
           for(var i=0; i<r1.length; i++) {
             for(var j=0; j<r2.length; j++) {
-              if(r1[i] === r2[j]) continue;
+              if(i === r2[j]) continue;
               for(var k=0; k<r3.length; k++) {
-                if(r1[i] === r3[k] || r2[j] === r3[k]) continue;
+                if(i === r3[k] || r2[j] === r3[k]) continue;
                 if (code === 'sanrenfuku' && (r1[i] > r2[j] || r2[j] > r3[k])) continue;
                 add(r1[i] + ((code === 'sanrentan') ? '→' : '-') + r2[j] + ((code === 'sanrentan') ? '→' : '-') + r3[k]);
               }
