@@ -1197,22 +1197,34 @@
     // Canvasを使ったマークシート画像合成・プレビュー処理
     // ==========================================
     
-    // 補助関数: 指定された座標オブジェクトに基づきCanvasを黒塗りする
+    // 補助関数: 指定された座標とサイズに基づき「角が丸い縦長の長方形（ピル型）」を描画する
     function drawFilledMark(ctx, coord) {
       if (!coord) return;
       // 鉛筆で濃く塗りつぶしたような色（真っ黒より少しだけかすれ感のある濃いグレー）
-      ctx.fillStyle = "rgba(20, 20, 20, 0.95)"; 
+      ctx.strokeStyle = "rgba(20, 20, 20, 0.95)"; 
+      ctx.lineCap = "round"; // 線の両端を丸くする設定
+      ctx.lineWidth = coord.w; // 線の太さを指定幅にする
+
+      // 高さを95%に縮小し、上下中央に配置する計算
+      var targetH = coord.h * 0.95;
+      var offsetY = (coord.h - targetH) / 2;
       
+      // 角丸(lineCap)の半径分だけ、線の始点と終点を内側にずらす
+      var r = coord.w / 2;
+      var startX = coord.x + r;
+      var startY = coord.y + offsetY + r;
+      var endX = startX;
+      var endY = coord.y + offsetY + targetH - r;
+
+      // 極端に高さが短い場合は、始点と終点を合わせて円(ドット)にする
+      if (endY < startY) {
+        endY = startY;
+      }
+
       ctx.beginPath();
-      // 縦長の楕円を描画（x, yは左上座標、w, hは幅と高さ）
-      var centerX = coord.x + (coord.w / 2);
-      var centerY = coord.y + (coord.h / 2);
-      var radiusX = coord.w / 2;
-      var radiusY = coord.h / 2;
-      
-      // ctx.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle)
-      ctx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, 2 * Math.PI);
-      ctx.fill();
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(endX, endY);
+      ctx.stroke();
     }
 
     // 新規：非同期で画像を読み込み、Canvasで合成して、画面上の<img>のsrcを差し替える関数
@@ -1243,8 +1255,8 @@
              drawFilledMark(ctx, sheetDef.shikibetsu[item.ticketCode]);
           }
 
-          // テスト用のダミー描画（赤い四角から、実際のマークに近い黒い縦長楕円に変更）
-          // 指定した幅(w:12)と高さ(h:25)に応じて縦長の楕円が描画されます
+          // テスト用のダミー描画（角が丸い縦長マーク）
+          // 指定した幅(w:12)と高さ(h:25)に応じてカプセル型が描画されます
           drawFilledMark(ctx, { x: 20, y: 20, w: 12, h: 25 }); 
         }
 
