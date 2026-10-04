@@ -1261,9 +1261,6 @@
           if (sheetDef.shikibetsu && sheetDef.shikibetsu[item.ticketCode]) {
              drawFilledMark(ctx, sheetDef.shikibetsu[item.ticketCode]);
           }
-
-          // テスト用のダミー描画
-          drawFilledMark(ctx, { x: 20, y: 20, w: 12, h: 25 }); 
         }
 
         // 3. 画面上の<img>タグのsrcを、合成後のDataURIに差し替える
@@ -1307,7 +1304,7 @@
             item.rawSelections.forEach(function(sel, i) {
               if (item.ticketCode === 'tansho' || item.ticketCode === 'fukusho' || item.ticketCode === 'ouen') {
                 sel.forEach(function(num) { markDetailsHtml += ' ・「' + num + '」<br>'; });
-              } else { markDetailsHtml += ' ・「' + sel.join((item.ticketCode === 'umatan' || item.ticketCode === 'sanrentan') ? '」→「' : '」-「') + '」<br>'; }
+              } else { markDetailsHtml += ' ・「' + sel.join((item.ticketCode === 'umatan' || item.ticketCode === 'sanrentan') ? '」→<span>' : '」-「') + '」<br>'; }
             });
             markDetailsHtml += '</li>';
           } else if (item.methodCode === 'box') {
@@ -1335,7 +1332,7 @@
           cardDiv.innerHTML = 
             '<span class="sheet-type-badge ' + badgeClass + '">' + (idx + 1) + '. ' + item.ticketName + ' (' + item.methodName + ') ➔ ' + cardType + '</span>' +
             '<div style="background-color: #f1f8e9; border: 1px solid #c5e1a5; padding: 12px; border-radius: 6px; font-size: 13px; color: #333; margin-bottom: 12px; margin-top: 8px;">' +
-              '<div style="font-weight:bold; color:#2e7d32; margin-bottom:8px; border-bottom:1px dashed #a5d6a7; padding-bottom:4px;">✏️ このマークシートの塗り方</div>' +
+              '<div style="font-weight:bold; color:#2e7d32; margin-bottom:8px; border-bottom:1px dashed #a5d6a7; padding-bottom:4px;">✏️️ このマークシートの塗り方</div>' +
               '<ul style="margin:0; padding-left:24px;">' + markDetailsHtml + '</ul>' +
             '</div>' +
             '<div class="sheet-img-wrap"><img id="' + imgId + '" src="' + imgUrl + '" class="sheet-img" alt="マークシート画像"></div>' +
