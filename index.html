@@ -426,7 +426,38 @@
         
         <!-- 画面①：馬券種選択 -->
         <div id="view-1" class="view-page active">
-          <p style="font-size: 13px; color: #666; margin-top:0; margin-bottom: 12px;">購入したい馬券の種類を選択してください：</p>
+          
+          <!-- 事前設定（場名・レース番号） -->
+          <div style="background:#f1f8e9; border:2px solid #a5d6a7; border-radius:8px; padding:12px; margin-bottom:20px;">
+            <div style="font-weight:bold; font-size:13px; color:#1b5e20; margin-bottom:4px;">🎯 事前設定（任意）</div>
+            <p style="font-size:11px; color:#666; margin-top:0; margin-bottom:10px;">※未選択でもシミュレーションはそのまま進められます。</p>
+            <div style="display:flex; gap:10px;">
+              <select id="venueSelect" style="flex:1; padding:8px; border-radius:4px; border:1px solid #ccc; font-size:13px; background:#fff;">
+                <option value="">①場名を選択</option>
+                <option value="札幌">札幌</option>
+                <option value="函館">函館</option>
+                <option value="福島">福島</option>
+                <option value="新潟">新潟</option>
+                <option value="東京">東京</option>
+                <option value="中山">中山</option>
+                <option value="中京">中京</option>
+                <option value="京都">京都</option>
+                <option value="阪神">阪神</option>
+                <option value="小倉">小倉</option>
+              </select>
+              <select id="raceSelect" style="flex:1; padding:8px; border-radius:4px; border:1px solid #ccc; font-size:13px; background:#fff;">
+                <option value="">②レースを選択</option>
+                <option value="1">1R</option><option value="2">2R</option>
+                <option value="3">3R</option><option value="4">4R</option>
+                <option value="5">5R</option><option value="6">6R</option>
+                <option value="7">7R</option><option value="8">8R</option>
+                <option value="9">9R</option><option value="10">10R</option>
+                <option value="11">11R</option><option value="12">12R</option>
+              </select>
+            </div>
+          </div>
+
+          <p style="font-size: 13px; color: #666; margin-top:0; margin-bottom: 12px;">③購入したい馬券の種類を選択してください：</p>
           <div class="ticket-list">
             <div class="ticket-item" id="ticket-item-tansho" onclick="chooseTicket('単勝', 'tansho', this)">
               <div class="ticket-btn-wrap"><div class="ticket-btn">単勝</div></div>
@@ -542,7 +573,7 @@
           
           <div id="cartList"></div>
 
-          <!-- カート内総合計エリア（スマートな右寄せデザイン） -->
+          <!-- カート内総合計エリア -->
           <div id="step3-grand-total-area" style="margin-top:12px; padding-top:12px; border-top:2px solid #e0e0e0; text-align:right; font-size:16px; font-weight:bold; color:#d32f2f; display:none;">
             総合計: <span id="step3-grand-total">0</span> 円
           </div>
@@ -574,29 +605,23 @@
     <div class="sub-page-container">
       <div class="sub-page-card">
         <h2 class="sub-page-title" id="subPageTitle">タイトル</h2>
-        <div class="sub-page-content" id="subPageBody">
-          <!-- 中身はJavaScriptで切り替わります -->
-        </div>
+        <div class="sub-page-content" id="subPageBody"></div>
       </div>
     </div>
   </div>
 
   <!-- ==============================================
-       4. 黒い縁取りのフッター（広告枠 ＆ 必須ページリンク）
+       4. 黒い縁取りのフッター
        ============================================== -->
   <footer class="site-footer">
     <div class="footer-content">
-      <div class="ad-banner-box">
-        [ 広告掲載スペース ]
-      </div>
-
+      <div class="ad-banner-box">[ 広告掲載スペース ]</div>
       <div class="footer-links">
         <a onclick="switchView('privacy')">プライバシーポリシー</a>
         <a onclick="switchView('terms')">利用規約（免責事項）</a>
         <a onclick="switchView('faq')">よくある質問</a>
         <a onclick="switchView('contact')">お問い合わせ</a>
       </div>
-
       <div class="footer-copyright">
         © 2026 馬券購入シミュレーター All Rights Reserved.<br>
         ※当サイトは個人のシミュレーションツールです。実際の馬券購入は自己責任で行ってください。
@@ -608,6 +633,8 @@
        5. JavaScript (機能ロジック)
        ============================================== -->
   <script>
+    var globalVenue = '';
+    var globalRace = '';
     var pendingTicketName = '';
     var pendingTicketCode = '';
     var selectedTicketName = '';
@@ -625,44 +652,85 @@
     };
 
     // ==========================================
-    // Canvas塗りつぶし用 座標データ構造 (土台)
+    // Canvas塗りつぶし＆赤枠ハイライト用 座標データ構造
     // ==========================================
-    var markSheetCoords = {
-      green: { // 1. 基本用（緑）
-        shikibetsu: { 
-          'tansho': {x: 50, y: 100, w: 20, h: 10},
-          'fukusho': {x: 80, y: 100, w: 20, h: 10},
-          'ouen': {x: 110, y: 100, w: 20, h: 10},
-          'wakuren': {x: 140, y: 100, w: 20, h: 10},
-          'umaren': {x: 170, y: 100, w: 20, h: 10},
-          'umatan': {x: 200, y: 100, w: 20, h: 10},
-          'wide': {x: 230, y: 100, w: 20, h: 10},
-          'sanrenfuku': {x: 260, y: 100, w: 20, h: 10},
-          'sanrentan': {x: 290, y: 100, w: 20, h: 10}
-        },
-        rows: [
-          {
-            num1: { '1': {x: 50, y: 150, w: 15, h: 10}, '2': {x: 70, y: 150, w: 15, h: 10} },
-            num2: { '1': {x: 50, y: 170, w: 15, h: 10} },
-            num3: { '1': {x: 50, y: 190, w: 15, h: 10} },
-            amountNum: { '1': {x: 50, y: 210, w: 15, h: 10}, '10': {x: 150, y: 210, w: 15, h: 10} },
-            amountUnit: { '100': {x: 50, y: 230, w: 20, h: 10}, '1000': {x: 80, y: 230, w: 20, h: 10}, '10000': {x: 110, y: 230, w: 20, h: 10} }
-          }
-        ]
-      },
-      redBox: { // 2. ボックス用（赤）
-        shikibetsu: { 'umaren': {x: 100, y: 50, w: 20, h: 10} },
-        nums: { '1': {x: 100, y: 100, w: 15, h: 10} },
-        amountNum: { '1': {x: 100, y: 200, w: 15, h: 10} },
-        amountUnit: { '100': {x: 100, y: 220, w: 20, h: 10} }
-      },
-      redForm: { // 3. フォーメーション用（赤）
-        shikibetsu: {}, num1: {}, num2: {}, num3: {}, amountNum: {}, amountUnit: {}
-      },
-      blueFuku: {}, blueTan: {}
+    var markW = 12; // テスト用ダミーと同じサイズ
+    var markH = 25;
+
+    // 基本用（緑）の座標を自動計算で構築
+    var greenCoords = {
+      venue: {}, race: {}, shikibetsu: {}, rows: [],
+      highlight: { venue: {x: 20, y: 30, w: 140, h: 50}, race: {x: 170, y: 30, w: 140, h: 50} }
     };
 
-    // --- 画面（ビュー）の切り替え管理 ---
+    // ①場名
+    var venues = ['中山', '東京', '京都', '阪神', '福島', '新潟', '中京', '小倉', '札幌', '函館'];
+    venues.forEach(function(v, i) {
+      var offsetX = (i >= 4) ? 15 : 0; 
+      greenCoords.venue[v] = { x: 140 + (i * 22) + offsetX, y: 72, w: markW, h: markH };
+    });
+
+    // ②レース番号
+    for (var i = 1; i <= 12; i++) {
+      var col = (i - 1) % 6;
+      var row = Math.floor((i - 1) / 6);
+      greenCoords.race[i.toString()] = { x: 410 + (col * 22), y: 55 + (row * 35), w: markW, h: markH };
+    }
+
+    // ③式別
+    var types = ['tansho', 'fukusho', 'wakuren', 'umaren', 'umatan', 'wide', 'sanrenfuku', 'sanrentan'];
+    types.forEach(function(t, i) {
+      greenCoords.shikibetsu[t] = { x: 575 + (i * 24), y: 72, w: markW, h: markH };
+    });
+
+    // ④馬番・枠番、⑤金額、⑥単位 (4行分ループ生成)
+    for (var r = 0; r < 4; r++) {
+      var rowObj = { num1: {}, num2: {}, num3: {}, amountNum: {}, amountUnit: {} };
+      var baseY = 135 + (r * 75);
+
+      function generateNums(startX) {
+        var nums = {};
+        for (var n = 1; n <= 18; n++) {
+          var c = (n - 1) % 9;
+          var ro = Math.floor((n - 1) / 9);
+          nums[n.toString()] = { x: startX + (c * 17), y: baseY + (ro * 33), w: markW, h: markH };
+        }
+        return nums;
+      }
+      
+      rowObj.num1 = generateNums(55);
+      rowObj.num2 = generateNums(225);
+      rowObj.num3 = generateNums(395);
+
+      var amtValues = [10, 20, 30, 5, 4, 3, 2, 1];
+      amtValues.forEach(function(val, idx) {
+        var c = idx % 4;
+        var ro = Math.floor(idx / 4);
+        rowObj.amountNum[val.toString()] = { x: 575 + (c * 20), y: baseY + (ro * 33), w: markW, h: markH };
+      });
+
+      var units = [10000, 1000, 100];
+      units.forEach(function(val, idx) {
+        rowObj.amountUnit[val.toString()] = { x: 675 + (idx * 20), y: baseY, w: markW, h: markH };
+      });
+
+      greenCoords.rows.push(rowObj);
+    }
+
+    var markSheetCoords = {
+      green: greenCoords,
+      redBox: {
+        shikibetsu: { 'umaren': {x: 100, y: 50, w: markW, h: markH} },
+        highlight: { venue: {x: 20, y: 30, w: 140, h: 50}, race: {x: 170, y: 30, w: 140, h: 50} }
+      },
+      redForm: {
+        shikibetsu: {}, 
+        highlight: { venue: {x: 20, y: 30, w: 140, h: 50}, race: {x: 170, y: 30, w: 140, h: 50} }
+      },
+      blueFuku: { highlight: { venue: {x: 20, y: 30, w: 140, h: 50}, race: {x: 170, y: 30, w: 140, h: 50} } },
+      blueTan: { highlight: { venue: {x: 20, y: 30, w: 140, h: 50}, race: {x: 170, y: 30, w: 140, h: 50} } }
+    };
+
     function switchView(viewName) {
       var landing = document.getElementById('landingPage');
       var app = document.getElementById('appContainer');
@@ -673,56 +741,29 @@
       subPage.classList.remove('active');
 
       if (viewName === 'landing') {
-        landing.classList.add('active');
-        window.scrollTo(0, 0);
+        landing.classList.add('active'); window.scrollTo(0, 0);
       } else if (viewName === 'app') {
-        app.classList.add('active');
-        goToStep(1);
+        app.classList.add('active'); goToStep(1);
       } else if (viewName === 'privacy' || viewName === 'terms' || viewName === 'faq' || viewName === 'contact') {
-        subPage.classList.add('active');
-        renderSubPage(viewName);
-        window.scrollTo(0, 0);
+        subPage.classList.add('active'); renderSubPage(viewName); window.scrollTo(0, 0);
       }
     }
 
-    // --- サブページの中身を生成する関数 ---
     function renderSubPage(type) {
       var titleEl = document.getElementById('subPageTitle');
       var bodyEl = document.getElementById('subPageBody');
-
       if (type === 'privacy') {
         titleEl.innerText = "プライバシーポリシー";
-        bodyEl.innerHTML = `
-          <h3>個人情報の利用について</h3>
-          <p>当サイト（馬券購入シミュレーター）では、アクセス解析や広告配信のためにCookieを使用することがあります。Cookieによりブラウザを識別しますが、個人の身元を特定するものではありません。</p>
-          <h3>広告の配信について</h3>
-          <p>今後、第三者配信の広告サービス（Google AdSenseなど）を導入する予定です。広告配信事業者はユーザーの興味に応じた広告を表示するためにCookieを使用することがあります。</p>
-        `;
+        bodyEl.innerHTML = "<h3>個人情報の利用について</h3><p>当サイトではCookieを使用することがあります...</p>";
       } else if (type === 'terms') {
         titleEl.innerText = "利用規約（免責事項）";
-        bodyEl.innerHTML = `
-          <h3>サービスの利用について</h3>
-          <p>当サイトは、馬券の購入点数や金額を計算し、マークシートの記入例を案内するための無料シミュレーションツールです。実際の馬券購入を勧誘・強制するものではありません。</p>
-          <h3>免責事項</h3>
-          <p>当サイトに掲載されている情報を用いて行う一切の行為、および被った損害・損失について、運営者は一切の責任を負いません。馬券の購入はご自身の判断と責任において行ってください。</p>
-        `;
+        bodyEl.innerHTML = "<h3>サービスの利用について</h3><p>当サイトはシミュレーションツールです。</p>";
       } else if (type === 'faq') {
         titleEl.innerText = "よくある質問";
-        bodyEl.innerHTML = `
-          <h3>Q. 利用料金はかかりますか？</h3>
-          <p>A. すべて無料でご利用いただけます。</p>
-          <h3>Q. このサイトから直接馬券を買えますか？</h3>
-          <p>A. いいえ。当サイトは買い目のシミュレーションとマークシートの書き方を確認するためのツールです。実際の購入は競馬場やJRAの公式サービス等で行ってください。</p>
-          <h3>Q. どんな馬券に対応していますか？</h3>
-          <p>A. 単勝、複勝、応援馬券、枠連、馬連、馬単、ワイド、3連複、3連単の全9種類に対応しています。</p>
-        `;
+        bodyEl.innerHTML = "<h3>Q. 料金は？</h3><p>A. 無料です。</p>";
       } else if (type === 'contact') {
         titleEl.innerText = "お問い合わせ";
-        bodyEl.innerHTML = `
-          <h3>ご連絡窓口</h3>
-          <p>不具合の報告やご要望などがございましたら、以下のメールアドレスまでご連絡ください。</p>
-          <p><b>メールアドレス:</b> support@example.com<br>（※スパム対策のため表記を変更している場合があります）</p>
-        `;
+        bodyEl.innerHTML = "<h3>ご連絡先</h3><p>support@example.com</p>";
       }
     }
 
@@ -758,7 +799,6 @@
       window.scrollTo(0, 0);
     }
 
-    // --- 券種選択・買い目・カート等の既存ロジック ---
     function chooseTicket(name, code, element) {
       pendingTicketName = name;
       pendingTicketCode = code;
@@ -769,6 +809,8 @@
 
     function confirmTicketSelection() {
       if (!pendingTicketCode) { alert("購入したい馬券の種類を選択してください。"); return; }
+      globalVenue = document.getElementById('venueSelect').value;
+      globalRace = document.getElementById('raceSelect').value;
       selectTicket(pendingTicketName, pendingTicketCode);
     }
 
@@ -1140,8 +1182,11 @@
     function addToCart() {
       var calc = calculateCurrentSelection();
       if (calc.points === 0) { alert("買い目が正しく選択されていません。"); return; }
+      
       cart.push({
         id: new Date().getTime(),
+        venue: globalVenue, 
+        race: globalRace,
         ticketName: selectedTicketName, ticketCode: selectedTicketCode,
         methodName: getMethodName(currentMethod), methodCode: currentMethod,
         points: calc.points, unit: calc.unit,
@@ -1163,15 +1208,26 @@
         btnGoStep4.style.display = 'block';
         cart.forEach(function(item, idx) {
           var div = document.createElement('div'); div.className = 'cart-item';
-          var titleDiv = document.createElement('div'); titleDiv.className = 'cart-item-title'; titleDiv.textContent = (idx + 1) + '. ' + item.ticketName + ' (' + item.methodName + ')';
-          var detailDiv = document.createElement('div'); detailDiv.className = 'cart-item-detail'; detailDiv.textContent = '点数: ' + item.points + '点 / 1点: ' + item.amountNum + item.amountUnitText + ' (' + item.unit.toLocaleString() + '円)';
+          
+          var venueText = item.venue ? item.venue : '未定';
+          var raceText = item.race ? item.race + 'R' : '未定';
+
+          var titleDiv = document.createElement('div'); titleDiv.className = 'cart-item-title'; 
+          titleDiv.textContent = (idx + 1) + '. ' + venueText + ' ' + raceText + ' - ' + item.ticketName + ' (' + item.methodName + ')';
+          
+          var detailDiv = document.createElement('div'); detailDiv.className = 'cart-item-detail'; 
+          detailDiv.textContent = '点数: ' + item.points + '点 / 1点: ' + item.amountNum + item.amountUnitText + ' (' + item.unit.toLocaleString() + '円)';
+          
           var subtotalDiv = document.createElement('div'); subtotalDiv.style.fontWeight = 'bold'; subtotalDiv.style.marginTop = '2px'; subtotalDiv.textContent = '小計: ' + item.totalAmount.toLocaleString() + '円';
+          
           var delBtn = document.createElement('button'); delBtn.className = 'cart-item-delete'; delBtn.textContent = '削除'; delBtn.onclick = function() { removeFromCart(item.id); };
+          
           var accDiv = document.createElement('div'); accDiv.style.fontSize = '12px'; accDiv.style.marginTop = '8px'; accDiv.style.borderTop = '1px solid #ccc'; accDiv.style.paddingTop = '4px';
           var toggleDiv = document.createElement('div'); toggleDiv.style.cursor = 'pointer'; toggleDiv.style.color = '#1565c0'; toggleDiv.style.fontWeight = 'bold'; toggleDiv.onclick = function() { toggleCombo(item.id); };
           var iconSpan = document.createElement('span'); iconSpan.id = 'icon-' + item.id; iconSpan.textContent = '▼';
           toggleDiv.appendChild(iconSpan); toggleDiv.appendChild(document.createTextNode(' 買い目の詳細を確認'));
           var comboContent = document.createElement('div'); comboContent.id = 'combo-' + item.id; comboContent.style.display = 'none'; comboContent.style.marginTop = '4px'; comboContent.style.padding = '6px'; comboContent.style.background = '#e0e0e0'; comboContent.style.borderRadius = '4px'; comboContent.style.maxHeight = '80px'; comboContent.style.overflowY = 'auto'; comboContent.style.wordBreak = 'break-all'; comboContent.textContent = item.combos.join(', ');
+          
           accDiv.appendChild(toggleDiv); accDiv.appendChild(comboContent);
           div.appendChild(titleDiv); div.appendChild(detailDiv); div.appendChild(subtotalDiv); div.appendChild(delBtn); div.appendChild(accDiv);
           cartList.appendChild(div);
@@ -1194,47 +1250,41 @@
     }
 
     // ==========================================
-    // Canvasを使ったマークシート画像合成・プレビュー処理
+    // Canvasを使ったマークシート画像合成処理
     // ==========================================
     
-    // 補助関数: 指定された座標とサイズに基づき「角が丸い縦長の長方形（ピル型）」を描画する
+    // マーク塗りつぶし用（ご指定のダミーと同じサイズ）
     function drawFilledMark(ctx, coord) {
       if (!coord) return;
-      // 鉛筆で濃く塗りつぶしたような色（真っ黒より少しだけかすれ感のある濃いグレー）
       ctx.strokeStyle = "rgba(20, 20, 20, 0.95)"; 
-      ctx.lineCap = "round"; // 線の両端を丸くする設定
-      
-      // 細さは前回の状態（元の約42.5%）からさらに80%に縮小（元の約34%）
+      ctx.lineCap = "round"; 
       var targetW = coord.w * 0.34;
       ctx.lineWidth = targetW; 
-
-      // 高さは前回の状態（元の約80.75%）をそのままキープ
       var targetH = coord.h * 0.8075;
       var offsetY = (coord.h - targetH) / 2;
-      
-      // 角丸(lineCap)の半径分だけ、線の始点と終点を内側にずらす
       var r = targetW / 2;
-      
-      // 線の中心X座標（元の枠の中央になるように計算）
       var centerX = coord.x + (coord.w / 2);
-      
       var startX = centerX;
       var startY = coord.y + offsetY + r;
       var endX = centerX;
       var endY = coord.y + offsetY + targetH - r;
-
-      // 極端に高さが短い場合は、始点と終点を合わせて円(ドット)にする
-      if (endY < startY) {
-        endY = startY;
-      }
-
+      if (endY < startY) { endY = startY; }
       ctx.beginPath();
       ctx.moveTo(startX, startY);
       ctx.lineTo(endX, endY);
       ctx.stroke();
     }
 
-    // 新規：非同期で画像を読み込み、Canvasで合成して、画面上の<img>のsrcを差し替える関数
+    // 未入力項目に対する注意喚起の赤枠ハイライト描画用
+    function drawHighlightBox(ctx, box) {
+      if (!box) return;
+      ctx.strokeStyle = "rgba(255, 0, 0, 0.9)";
+      ctx.lineWidth = 4;
+      ctx.setLineDash([8, 6]);
+      ctx.strokeRect(box.x, box.y, box.w, box.h);
+      ctx.setLineDash([]);
+    }
+
     function applyCanvasToImage(item, imgElementId, baseImgUrl) {
       var img = new Image();
       img.crossOrigin = "anonymous";
@@ -1244,10 +1294,8 @@
         canvas.height = img.naturalHeight || 800;
         var ctx = canvas.getContext('2d');
         
-        // 1. ベース画像をCanvasに描画
         ctx.drawImage(img, 0, 0);
 
-        // 2. 塗りつぶしロジック
         var coordsType = 'green';
         if (item.methodCode === 'formation') coordsType = 'redForm';
         else if (item.methodCode === 'nagashi') {
@@ -1258,15 +1306,52 @@
 
         var sheetDef = markSheetCoords[coordsType];
         if (sheetDef) {
+          // ① 場名
+          if (item.venue && sheetDef.venue && sheetDef.venue[item.venue]) {
+             drawFilledMark(ctx, sheetDef.venue[item.venue]);
+          }
+          // ② レース番号
+          if (item.race && sheetDef.race && sheetDef.race[item.race]) {
+             drawFilledMark(ctx, sheetDef.race[item.race]);
+          }
+          // ③ 式別
           if (sheetDef.shikibetsu && sheetDef.shikibetsu[item.ticketCode]) {
              drawFilledMark(ctx, sheetDef.shikibetsu[item.ticketCode]);
           }
 
-          // テスト用のダミー描画
-          drawFilledMark(ctx, { x: 20, y: 20, w: 12, h: 25 }); 
+          // ④ 馬番/枠番、⑤ 金額、⑥ 単位（緑カードの買い目行）
+          if (coordsType === 'green' && sheetDef.rows && item.rawSelections) {
+            var maxRows = Math.min(item.rawSelections.length, 4);
+            
+            for (var r = 0; r < maxRows; r++) {
+              var sel = item.rawSelections[r];
+              var rowCoords = sheetDef.rows[r];
+              
+              if (sel) {
+                if (sel[0] && rowCoords.num1[sel[0]]) drawFilledMark(ctx, rowCoords.num1[sel[0]]);
+                if (sel[1] && rowCoords.num2[sel[1]]) drawFilledMark(ctx, rowCoords.num2[sel[1]]);
+                if (sel[2] && rowCoords.num3[sel[2]]) drawFilledMark(ctx, rowCoords.num3[sel[2]]);
+              }
+
+              if (rowCoords.amountNum[item.amountNum.toString()]) {
+                drawFilledMark(ctx, rowCoords.amountNum[item.amountNum.toString()]);
+              }
+              
+              var unitKey = "100";
+              if (item.amountUnitText === '千円') unitKey = "1000";
+              if (item.amountUnitText === '万円') unitKey = "10000";
+              if (rowCoords.amountUnit[unitKey]) {
+                drawFilledMark(ctx, rowCoords.amountUnit[unitKey]);
+              }
+            }
+          }
+
+          if (sheetDef.highlight) {
+             if (!item.venue && sheetDef.highlight.venue) drawHighlightBox(ctx, sheetDef.highlight.venue);
+             if (!item.race && sheetDef.highlight.race) drawHighlightBox(ctx, sheetDef.highlight.race);
+          }
         }
 
-        // 3. 画面上の<img>タグのsrcを、合成後のDataURIに差し替える
         var targetImg = document.getElementById(imgElementId);
         if (targetImg) {
           targetImg.src = canvas.toDataURL('image/png');
@@ -1275,20 +1360,26 @@
       img.src = baseImgUrl;
     }
 
-    // ダウンロードボタンが押された時の処理（画面に表示されている画像をそのまま保存）
     function downloadDisplayedImage(imgId, fileNamePrefix) {
       var img = document.getElementById(imgId);
       if (!img) return;
-
       var link = document.createElement('a');
       link.download = 'baken_marksheet_' + fileNamePrefix + '_' + new Date().getTime() + '.png';
-      // img.srcには既に applyCanvasToImage で合成された画像(DataURI)が入っている
       link.href = img.src; 
       link.click();
     }
 
     function renderSheetGuide() {
       var list = document.getElementById("sheetGuideList"); list.innerHTML = '';
+
+      var hasMissingInfo = cart.some(function(item) { return !item.venue || !item.race; });
+      if (hasMissingInfo) {
+        var warningDiv = document.createElement('div');
+        warningDiv.style.cssText = "background-color: #fff3e0; border-left: 5px solid #ff9800; padding: 12px; margin-bottom: 15px; border-radius: 4px; font-size: 13px; color: #e65100; line-height: 1.5; box-shadow: 0 2px 4px rgba(0,0,0,0.05);";
+        warningDiv.innerHTML = "<b>⚠️ 注意：場名 または レース番号 が未選択です</b><br>実際のマークカードを記入する際は、画像内の<span style='color:red; font-weight:bold;'>赤枠（点線）</span>の部分を忘れずに塗りつぶしてください。";
+        list.appendChild(warningDiv);
+      }
+
       if (cart.length > 0) {
         var cartHeading = document.createElement('div');
         cartHeading.innerHTML = '<div style="font-weight:bold; font-size:14px; color:#1b5e20; margin-bottom:8px;">🛒 カート内馬券のマークシート指定</div>';
@@ -1301,7 +1392,9 @@
             else { cardType = '連単流し（青）'; badgeClass = 'badge-blue'; imgUrl = sheetImages.blueTan; }
           } else if (item.methodCode === 'box') { cardType = 'ボックス（赤）'; badgeClass = 'badge-red'; imgUrl = sheetImages.redBox; }
 
-          var markDetailsHtml = '<li style="margin-bottom:6px;"><b>式別:</b> 「' + item.ticketName + '」を塗りつぶす</li>';
+          var markDetailsHtml = '<li style="margin-bottom:6px;"><b>場名/レース:</b> ' + (item.venue ? item.venue : '<span style="color:#d32f2f">（未選択）</span>') + ' / ' + (item.race ? item.race + 'R' : '<span style="color:#d32f2f">（未選択）</span>') + '</li>';
+          markDetailsHtml += '<li style="margin-bottom:6px;"><b>式別:</b> 「' + item.ticketName + '」を塗りつぶす</li>';
+          
           if (item.methodCode === 'normal') {
             markDetailsHtml += '<li style="margin-bottom:6px;"><b>馬番/枠番:</b> 各行ごとに以下を塗りつぶす<br>';
             item.rawSelections.forEach(function(sel, i) {
@@ -1327,11 +1420,9 @@
           }
           markDetailsHtml += '<li style="margin-bottom:6px;"><b>金額:</b> 「' + item.amountNum + '」と「' + item.amountUnitText + '」を塗りつぶす</li>';
 
-          // 各画像タグに一意のIDを付与する
           var imgId = 'sheet-img-' + item.id;
 
           var cardDiv = document.createElement('div'); cardDiv.className = 'sheet-guide-card';
-          // ダウンロードボタンはシンプルに imgId を渡す形
           cardDiv.innerHTML = 
             '<span class="sheet-type-badge ' + badgeClass + '">' + (idx + 1) + '. ' + item.ticketName + ' (' + item.methodName + ') ➔ ' + cardType + '</span>' +
             '<div style="background-color: #f1f8e9; border: 1px solid #c5e1a5; padding: 12px; border-radius: 6px; font-size: 13px; color: #333; margin-bottom: 12px; margin-top: 8px;">' +
@@ -1339,10 +1430,9 @@
               '<ul style="margin:0; padding-left:24px;">' + markDetailsHtml + '</ul>' +
             '</div>' +
             '<div class="sheet-img-wrap"><img id="' + imgId + '" src="' + imgUrl + '" class="sheet-img" alt="マークシート画像"></div>' +
-            '<button class="action-btn download-btn" onclick="downloadDisplayedImage(\'' + imgId + '\', \'' + item.ticketName + '_' + item.methodName + '\')">📥 このマークシート画像をダウンロード</button>';
+            '<button class="action-btn download-btn" onclick="downloadDisplayedImage(\'' + imgId + '\', \'' + item.ticketName + '_' + item.methodName + '\')">📥 この画像をダウンロード</button>';
           list.appendChild(cardDiv);
 
-          // DOMに追加された直後に、非同期でCanvas合成処理を走らせる
           applyCanvasToImage(item, imgId, imgUrl);
         });
       }
@@ -1378,7 +1468,6 @@
       }
     }
 
-    // 各フロー内（インライン）に総合計を反映する形に改修
     function updateGrandTotal(currPts, currAmt) {
       var cartPoints = 0, cartTotal = 0;
       for (var i = 0; i < cart.length; i++) {
@@ -1386,7 +1475,6 @@
         cartTotal += cart[i].totalAmount;
       }
 
-      // Step 2（買い目選択画面）の金額サマリーを更新
       var step2CartTotalEl = document.getElementById("step2-cart-total");
       var step2GrandTotalEl = document.getElementById("step2-grand-total");
       if (step2CartTotalEl && step2GrandTotalEl) {
@@ -1394,7 +1482,6 @@
         step2GrandTotalEl.innerText = (cartTotal + (currAmt || 0)).toLocaleString();
       }
 
-      // Step 3（カート確認画面）の総合計エリアを更新
       var step3TotalArea = document.getElementById("step3-grand-total-area");
       if (step3TotalArea) {
         document.getElementById("step3-grand-total").innerText = cartTotal.toLocaleString();
