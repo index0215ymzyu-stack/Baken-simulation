@@ -1196,12 +1196,23 @@
     // ==========================================
     // Canvasを使ったマークシート画像合成・プレビュー処理
     // ==========================================
+    
     // 補助関数: 指定された座標オブジェクトに基づきCanvasを黒塗りする
     function drawFilledMark(ctx, coord) {
       if (!coord) return;
-      ctx.fillStyle = "rgba(0, 0, 0, 0.75)"; 
+      // 鉛筆で濃く塗りつぶしたような色（真っ黒より少しだけかすれ感のある濃いグレー）
+      ctx.fillStyle = "rgba(20, 20, 20, 0.95)"; 
+      
       ctx.beginPath();
-      ctx.fillRect(coord.x, coord.y, coord.w, coord.h);
+      // 縦長の楕円を描画（x, yは左上座標、w, hは幅と高さ）
+      var centerX = coord.x + (coord.w / 2);
+      var centerY = coord.y + (coord.h / 2);
+      var radiusX = coord.w / 2;
+      var radiusY = coord.h / 2;
+      
+      // ctx.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle)
+      ctx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, 2 * Math.PI);
+      ctx.fill();
     }
 
     // 新規：非同期で画像を読み込み、Canvasで合成して、画面上の<img>のsrcを差し替える関数
@@ -1232,9 +1243,9 @@
              drawFilledMark(ctx, sheetDef.shikibetsu[item.ticketCode]);
           }
 
-          // テスト用のダミー描画（左上にわかりやすく赤い半透明の四角）
-          ctx.fillStyle = "rgba(255, 0, 0, 0.5)"; 
-          ctx.fillRect(10, 10, 50, 50); 
+          // テスト用のダミー描画（赤い四角から、実際のマークに近い黒い縦長楕円に変更）
+          // 指定した幅(w:12)と高さ(h:25)に応じて縦長の楕円が描画されます
+          drawFilledMark(ctx, { x: 20, y: 20, w: 12, h: 25 }); 
         }
 
         // 3. 画面上の<img>タグのsrcを、合成後のDataURIに差し替える
@@ -1298,11 +1309,11 @@
           }
           markDetailsHtml += '<li style="margin-bottom:6px;"><b>金額:</b> 「' + item.amountNum + '」と「' + item.amountUnitText + '」を塗りつぶす</li>';
 
-          // ★ 各画像タグに一意のIDを付与する
+          // 各画像タグに一意のIDを付与する
           var imgId = 'sheet-img-' + item.id;
 
           var cardDiv = document.createElement('div'); cardDiv.className = 'sheet-guide-card';
-          // ★ ダウンロードボタンはシンプルに imgId を渡す形に変更
+          // ダウンロードボタンはシンプルに imgId を渡す形
           cardDiv.innerHTML = 
             '<span class="sheet-type-badge ' + badgeClass + '">' + (idx + 1) + '. ' + item.ticketName + ' (' + item.methodName + ') ➔ ' + cardType + '</span>' +
             '<div style="background-color: #f1f8e9; border: 1px solid #c5e1a5; padding: 12px; border-radius: 6px; font-size: 13px; color: #333; margin-bottom: 12px; margin-top: 8px;">' +
@@ -1313,7 +1324,7 @@
             '<button class="action-btn download-btn" onclick="downloadDisplayedImage(\'' + imgId + '\', \'' + item.ticketName + '_' + item.methodName + '\')">📥 このマークシート画像をダウンロード</button>';
           list.appendChild(cardDiv);
 
-          // ★ DOMに追加された直後に、非同期でCanvas合成処理を走らせる
+          // DOMに追加された直後に、非同期でCanvas合成処理を走らせる
           applyCanvasToImage(item, imgId, imgUrl);
         });
       }
