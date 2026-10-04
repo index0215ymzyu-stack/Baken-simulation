@@ -1263,6 +1263,8 @@
           }
         }
 
+        // ※ここで以前ノイズの原因になっていたテスト用マークの呼び出しは完全に削除しました
+
         // 3. 画面上の<img>タグのsrcを、合成後のDataURIに差し替える
         var targetImg = document.getElementById(imgElementId);
         if (targetImg) {
@@ -1304,7 +1306,7 @@
             item.rawSelections.forEach(function(sel, i) {
               if (item.ticketCode === 'tansho' || item.ticketCode === 'fukusho' || item.ticketCode === 'ouen') {
                 sel.forEach(function(num) { markDetailsHtml += ' ・「' + num + '」<br>'; });
-              } else { markDetailsHtml += ' ・「' + sel.join((item.ticketCode === 'umatan' || item.ticketCode === 'sanrentan') ? '」→<span>' : '」-「') + '」<br>'; }
+              } else { markDetailsHtml += ' ・「' + sel.join((item.ticketCode === 'umatan' || item.ticketCode === 'sanrentan') ? '」→「' : '」-「') + '」<br>'; }
             });
             markDetailsHtml += '</li>';
           } else if (item.methodCode === 'box') {
@@ -1332,7 +1334,7 @@
           cardDiv.innerHTML = 
             '<span class="sheet-type-badge ' + badgeClass + '">' + (idx + 1) + '. ' + item.ticketName + ' (' + item.methodName + ') ➔ ' + cardType + '</span>' +
             '<div style="background-color: #f1f8e9; border: 1px solid #c5e1a5; padding: 12px; border-radius: 6px; font-size: 13px; color: #333; margin-bottom: 12px; margin-top: 8px;">' +
-              '<div style="font-weight:bold; color:#2e7d32; margin-bottom:8px; border-bottom:1px dashed #a5d6a7; padding-bottom:4px;">✏️️ このマークシートの塗り方</div>' +
+              '<div style="font-weight:bold; color:#2e7d32; margin-bottom:8px; border-bottom:1px dashed #a5d6a7; padding-bottom:4px;">✏️ このマークシートの塗り方</div>' +
               '<ul style="margin:0; padding-left:24px;">' + markDetailsHtml + '</ul>' +
             '</div>' +
             '<div class="sheet-img-wrap"><img id="' + imgId + '" src="' + imgUrl + '" class="sheet-img" alt="マークシート画像"></div>' +
