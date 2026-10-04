@@ -627,11 +627,9 @@
     // ==========================================
     // Canvas塗りつぶし用 座標データ構造 (土台)
     // ==========================================
-    // ※ { x: X座標, y: Y座標, w: 幅, h: 高さ } の形式で管理します。
-    // ※ 下記の数値は全て「仮のダミーデータ」です。後日実際の画像のピクセルに合わせて調整します。
     var markSheetCoords = {
       green: { // 1. 基本用（緑）
-        shikibetsu: { // 式別の塗る場所
+        shikibetsu: { 
           'tansho': {x: 50, y: 100, w: 20, h: 10},
           'fukusho': {x: 80, y: 100, w: 20, h: 10},
           'ouen': {x: 110, y: 100, w: 20, h: 10},
@@ -642,33 +640,26 @@
           'sanrenfuku': {x: 260, y: 100, w: 20, h: 10},
           'sanrentan': {x: 290, y: 100, w: 20, h: 10}
         },
-        rows: [ // 行ごとの塗る場所（緑は複数行あるため配列で管理を想定）
+        rows: [
           {
-            num1: { '1': {x: 50, y: 150, w: 15, h: 10}, '2': {x: 70, y: 150, w: 15, h: 10} /* ...18まで */ },
-            num2: { '1': {x: 50, y: 170, w: 15, h: 10}, /* ... */ },
-            num3: { '1': {x: 50, y: 190, w: 15, h: 10}, /* ... */ },
-            amountNum: { '1': {x: 50, y: 210, w: 15, h: 10}, '10': {x: 150, y: 210, w: 15, h: 10} /* ... */ },
+            num1: { '1': {x: 50, y: 150, w: 15, h: 10}, '2': {x: 70, y: 150, w: 15, h: 10} },
+            num2: { '1': {x: 50, y: 170, w: 15, h: 10} },
+            num3: { '1': {x: 50, y: 190, w: 15, h: 10} },
+            amountNum: { '1': {x: 50, y: 210, w: 15, h: 10}, '10': {x: 150, y: 210, w: 15, h: 10} },
             amountUnit: { '100': {x: 50, y: 230, w: 20, h: 10}, '1000': {x: 80, y: 230, w: 20, h: 10}, '10000': {x: 110, y: 230, w: 20, h: 10} }
           }
-          // 必要に応じて2行目、3行目の座標オブジェクトを追加
         ]
       },
       redBox: { // 2. ボックス用（赤）
-        shikibetsu: { /* 仮座標 */ 'umaren': {x: 100, y: 50, w: 20, h: 10} },
-        nums: { '1': {x: 100, y: 100, w: 15, h: 10} /* ... */ },
+        shikibetsu: { 'umaren': {x: 100, y: 50, w: 20, h: 10} },
+        nums: { '1': {x: 100, y: 100, w: 15, h: 10} },
         amountNum: { '1': {x: 100, y: 200, w: 15, h: 10} },
         amountUnit: { '100': {x: 100, y: 220, w: 20, h: 10} }
       },
       redForm: { // 3. フォーメーション用（赤）
-        shikibetsu: { /* 仮座標 */ },
-        num1: { /* 1着・1頭目 */ },
-        num2: { /* 2着・2頭目 */ },
-        num3: { /* 3着・3頭目 */ },
-        amountNum: { /* ... */ },
-        amountUnit: { /* ... */ }
+        shikibetsu: {}, num1: {}, num2: {}, num3: {}, amountNum: {}, amountUnit: {}
       },
-      blueFuku: { /* 4. 連複流し用（青） */ },
-      blueTan: { /* 5. 連単流し用（青） */ }
+      blueFuku: {}, blueTan: {}
     };
 
     // --- 画面（ビュー）の切り替え管理 ---
@@ -1203,23 +1194,18 @@
     }
 
     // ==========================================
-    // Canvasを使ったマークシート画像合成・ダウンロード処理
+    // Canvasを使ったマークシート画像合成・プレビュー処理
     // ==========================================
     // 補助関数: 指定された座標オブジェクトに基づきCanvasを黒塗りする
     function drawFilledMark(ctx, coord) {
       if (!coord) return;
-      ctx.fillStyle = "rgba(0, 0, 0, 0.75)"; // 鉛筆風の少し透けた濃いグレー
-      
-      // 今回は仮で矩形(四角)として塗りつぶす（後日必要なら角丸や楕円に調整可能）
+      ctx.fillStyle = "rgba(0, 0, 0, 0.75)"; 
       ctx.beginPath();
       ctx.fillRect(coord.x, coord.y, coord.w, coord.h);
     }
 
-    // ダウンロードメイン処理（引数にカート内の該当インデックス idx を追加）
-    function downloadMarkSheetImage(imgUrl, fileNamePrefix, cartIndex) {
-      var item = cart[cartIndex]; // 対象のカートアイテムを取得
-      if (!item) return;
-
+    // 新規：非同期で画像を読み込み、Canvasで合成して、画面上の<img>のsrcを差し替える関数
+    function applyCanvasToImage(item, imgElementId, baseImgUrl) {
       var img = new Image();
       img.crossOrigin = "anonymous";
       img.onload = function() {
@@ -1228,11 +1214,10 @@
         canvas.height = img.naturalHeight || 800;
         var ctx = canvas.getContext('2d');
         
-        // 1. ベースとなるマークシート画像を描画
+        // 1. ベース画像をCanvasに描画
         ctx.drawImage(img, 0, 0);
 
-        // 2. カートの内容に応じた黒塗り合成処理（土台）
-        // ※ ここで item.methodCode(通常, ボックス等) に応じて markSheetCoords から座標を引き当てます。
+        // 2. 塗りつぶしロジック
         var coordsType = 'green';
         if (item.methodCode === 'formation') coordsType = 'redForm';
         else if (item.methodCode === 'nagashi') {
@@ -1243,32 +1228,34 @@
 
         var sheetDef = markSheetCoords[coordsType];
         if (sheetDef) {
-          // --- 例: 式別の塗りつぶし ---
           if (sheetDef.shikibetsu && sheetDef.shikibetsu[item.ticketCode]) {
              drawFilledMark(ctx, sheetDef.shikibetsu[item.ticketCode]);
           }
 
-          // --- 例: 金額と単位の塗りつぶし ---
-          // ※ 通常(green)は複数行の概念があるためロジックが分岐しますが、ここではイメージのみ
-          // if (sheetDef.amountNum && sheetDef.amountNum[item.amountNum]) {
-          //   drawFilledMark(ctx, sheetDef.amountNum[item.amountNum]);
-          // }
-
-          // --- テスト用のダミー描画（左上にわかりやすく黒丸） ---
-          ctx.fillStyle = "rgba(255, 0, 0, 0.5)"; // テスト用に赤の半透明
-          ctx.fillRect(10, 10, 50, 50); // ダウンロードされた画像にこの四角が合成されていれば成功
+          // テスト用のダミー描画（左上にわかりやすく赤い半透明の四角）
+          ctx.fillStyle = "rgba(255, 0, 0, 0.5)"; 
+          ctx.fillRect(10, 10, 50, 50); 
         }
 
-        // 3. ダウンロード実行
-        var link = document.createElement('a');
-        link.download = 'baken_marksheet_' + fileNamePrefix + '_' + new Date().getTime() + '.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        // 3. 画面上の<img>タグのsrcを、合成後のDataURIに差し替える
+        var targetImg = document.getElementById(imgElementId);
+        if (targetImg) {
+          targetImg.src = canvas.toDataURL('image/png');
+        }
       };
-      img.onerror = function() {
-        alert("画像を読み込めませんでした。同階層にマークシート画像(green.png等)が配置されているか確認してください。");
-      };
-      img.src = imgUrl;
+      img.src = baseImgUrl;
+    }
+
+    // ダウンロードボタンが押された時の処理（画面に表示されている画像をそのまま保存）
+    function downloadDisplayedImage(imgId, fileNamePrefix) {
+      var img = document.getElementById(imgId);
+      if (!img) return;
+
+      var link = document.createElement('a');
+      link.download = 'baken_marksheet_' + fileNamePrefix + '_' + new Date().getTime() + '.png';
+      // img.srcには既に applyCanvasToImage で合成された画像(DataURI)が入っている
+      link.href = img.src; 
+      link.click();
     }
 
     function renderSheetGuide() {
@@ -1311,17 +1298,23 @@
           }
           markDetailsHtml += '<li style="margin-bottom:6px;"><b>金額:</b> 「' + item.amountNum + '」と「' + item.amountUnitText + '」を塗りつぶす</li>';
 
+          // ★ 各画像タグに一意のIDを付与する
+          var imgId = 'sheet-img-' + item.id;
+
           var cardDiv = document.createElement('div'); cardDiv.className = 'sheet-guide-card';
-          // ★ここでダウンロードボタンの onclick に対象のインデックス(idx)を渡すように変更
+          // ★ ダウンロードボタンはシンプルに imgId を渡す形に変更
           cardDiv.innerHTML = 
             '<span class="sheet-type-badge ' + badgeClass + '">' + (idx + 1) + '. ' + item.ticketName + ' (' + item.methodName + ') ➔ ' + cardType + '</span>' +
             '<div style="background-color: #f1f8e9; border: 1px solid #c5e1a5; padding: 12px; border-radius: 6px; font-size: 13px; color: #333; margin-bottom: 12px; margin-top: 8px;">' +
               '<div style="font-weight:bold; color:#2e7d32; margin-bottom:8px; border-bottom:1px dashed #a5d6a7; padding-bottom:4px;">✏️ このマークシートの塗り方</div>' +
               '<ul style="margin:0; padding-left:24px;">' + markDetailsHtml + '</ul>' +
             '</div>' +
-            '<div class="sheet-img-wrap"><img src="' + imgUrl + '" class="sheet-img" alt="マークシート画像"></div>' +
-            '<button class="action-btn download-btn" onclick="downloadMarkSheetImage(\'' + imgUrl + '\', \'' + item.ticketName + '_' + item.methodName + '\', ' + idx + ')">📥 このマークシート画像をダウンロード</button>';
+            '<div class="sheet-img-wrap"><img id="' + imgId + '" src="' + imgUrl + '" class="sheet-img" alt="マークシート画像"></div>' +
+            '<button class="action-btn download-btn" onclick="downloadDisplayedImage(\'' + imgId + '\', \'' + item.ticketName + '_' + item.methodName + '\')">📥 このマークシート画像をダウンロード</button>';
           list.appendChild(cardDiv);
+
+          // ★ DOMに追加された直後に、非同期でCanvas合成処理を走らせる
+          applyCanvasToImage(item, imgId, imgUrl);
         });
       }
 
